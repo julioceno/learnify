@@ -1,0 +1,16 @@
+spring:
+  application:
+    name: sso
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/learnify_sso
+    username: learnify
+    password: password
+    driver-class-name: org.postgresql.Driver
+
+
+api:
+  security:
+    token:
+      secret: 3afd43e7-12db-4e68-a157-bd078b611dcd
+      expireIn: 60

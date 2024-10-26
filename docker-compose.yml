@@ -1,0 +1,14 @@
+services:
+  postgresdb:
+    image: postgres
+    restart: always
+    volumes:
+      - postgres-data:/data/db
+    environment:
+      - 'POSTGRES_USER=learnify'
+      - 'POSTGRES_PASSWORD=password'
+      - 'POSTGRES_DB=learnify_sso'
+    ports:
+      - 5432:5432
+volumes:
+  postgres-data:
