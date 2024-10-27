@@ -5,15 +5,11 @@ import com.learnify.plans.plans.dto.ResponseListDTO;
 import com.learnify.plans.plans.service.PlansService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(value = "plans")
 public class PlansController {
-
     @Autowired
     private PlansService plansService;
 
@@ -26,4 +22,11 @@ public class PlansController {
         return ResponseEntity.ok(data);
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<PlanDTO> getPlan(
+        @PathVariable String id
+    ) {
+        PlanDTO data = plansService.getPlan(id);
+        return ResponseEntity.ok(data);
+    }
 }
