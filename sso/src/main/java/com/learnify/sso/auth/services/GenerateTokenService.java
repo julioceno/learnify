@@ -20,10 +20,10 @@ import static java.lang.String.format;
 public class GenerateTokenService {
     final private Logger logger = LoggerFactory.getLogger(GenerateTokenService.class.getName());
 
-    @Value("{api.security.token.secret}")
+    @Value("${api.security.token.secret}")
     private String secret;
 
-    @Value("{api.security.token.expireIn}")
+    @Value("${api.security.token.expireIn}")
     private String expireIn;
 
     public String run(User user) {

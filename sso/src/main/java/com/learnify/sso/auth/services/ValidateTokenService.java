@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service;
 public class ValidateTokenService {
     final private Logger logger = LoggerFactory.getLogger(ValidateTokenService.class.getName());
 
-    @Value("{api.security.token.secret}")
+    @Value("${api.security.token.secret}")
     private String secret;
 
     public SubjectDTO run(String token) {

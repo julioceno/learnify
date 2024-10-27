@@ -31,6 +31,6 @@ public class AuthController {
         cookie.setPath("/");
         response.addCookie(cookie);
 
-        return ResponseEntity.ok(tokensDTO);
+        return ResponseEntity.noContent().build();
     }
 }

@@ -1,6 +1,6 @@
 package com.learnify.sso.users.services;
 
-import com.learnify.sso.users.UserDTO;
+import com.learnify.sso.users.dto.UserDTO;
 import com.learnify.sso.users.dto.CreateUserDTO;
 import org.springframework.stereotype.Service;
 

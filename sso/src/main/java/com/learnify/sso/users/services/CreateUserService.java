@@ -1,13 +1,14 @@
 package com.learnify.sso.users.services;
 
 import com.learnify.sso.common.exceptions.BadRequestException;
-import com.learnify.sso.users.UserDTO;
+import com.learnify.sso.users.dto.UserDTO;
 import com.learnify.sso.users.domain.User;
 import com.learnify.sso.users.domain.UserRepository;
 import com.learnify.sso.users.dto.CreateUserDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -37,10 +38,12 @@ public class CreateUserService {
     }
 
     private User createUser(final CreateUserDTO dto) {
+        String encryptedPassword = new BCryptPasswordEncoder().encode(dto.getPassword());
+
         User userToCreate = new User();
         userToCreate.setEmail(dto.getEmail());
         userToCreate.setName(dto.getName());
-        userToCreate.setPassword(dto.getPassword());
+        userToCreate.setPassword(encryptedPassword);
 
         userRepository.save(userToCreate);
         logger.info(format("User with email %s created", dto.getEmail()));
