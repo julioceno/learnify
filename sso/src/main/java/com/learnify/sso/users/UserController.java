@@ -5,12 +5,12 @@ import com.learnify.sso.users.domain.User;
 import com.learnify.sso.users.dto.CreateUserDTO;
 import com.learnify.sso.users.dto.UserDTO;
 import com.learnify.sso.users.services.UserService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
 import java.net.URI;
 
 @RestController()

@@ -5,6 +5,7 @@ import com.learnify.sso.auth.dto.TokensDTO;
 import com.learnify.sso.auth.services.AuthService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,7 +23,7 @@ public class AuthController {
     private HttpServletResponse response;
 
     @PostMapping("sign-in")
-    public ResponseEntity signIn(@RequestBody SignInUserDTO signInUserDTO) {
+    public ResponseEntity signIn(@RequestBody @Valid SignInUserDTO signInUserDTO) {
         TokensDTO tokensDTO = authService.signIn(signInUserDTO);
 
         Cookie cookie = new Cookie("token", tokensDTO.token());
