@@ -18,7 +18,7 @@ services:
     environment:
       - 'POSTGRES_USER=learnify'
       - 'POSTGRES_PASSWORD=password'
-      - 'POSTGRES_DB=learnify_sso'
+      - 'POSTGRES_DB=learnify_plans'
     ports:
       - 5432:5432
 volumes:

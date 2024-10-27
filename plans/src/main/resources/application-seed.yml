@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: plans
+  main:
+    allow-bean-definition-overriding: true
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/learnify_plans
+    username: learnify
+    password: password
+    driver-class-name: org.postgresql.Driver
