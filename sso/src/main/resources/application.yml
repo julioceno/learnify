@@ -3,7 +3,7 @@ spring:
     name: sso
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/learnify_sso
+    url: jdbc:postgresql://localhost:5431/learnify_sso
     username: learnify
     password: password
     driver-class-name: org.postgresql.Driver
