@@ -19,13 +19,13 @@ public class PlanDTO {
     private String name;
     private String description;
     private BigDecimal value;
-    private List<String> permissions;
+    private List<PermissionDTO> permissions;
 
     public PlanDTO(Plan plan) {
         id = plan.getId();
         name = plan.getName();
         description = plan.getDescription();
         value = plan.getValue();
-        permissions = plan.getPermissions().stream().map(Permission::getDescription).toList();
+        permissions = plan.getPermissions().stream().map(PermissionDTO::new).toList();
     }
 }

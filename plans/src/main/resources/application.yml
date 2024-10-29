@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: plans
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/learnify_plans
+    username: learnify
+    password: password
+    driver-class-name: org.postgresql.Driver

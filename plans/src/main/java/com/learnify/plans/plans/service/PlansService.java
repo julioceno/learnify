@@ -11,8 +11,8 @@ public class PlansService {
     final private GetPlansService getPlansService;
     final private GetPlanService getPlanService;
 
-    public ResponseListDTO<PlanDTO> getPlans(int page, int size) {
-        return this.getPlansService.run(page, size);
+    public ResponseListDTO<PlanDTO> getPlans(int page, int size, String name, String description) {
+        return this.getPlansService.run(page, size, name, description);
     }
 
     public PlanDTO getPlan(String id) {

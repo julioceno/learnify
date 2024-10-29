@@ -16,9 +16,11 @@ public class PlansController {
     @GetMapping
     public ResponseEntity<ResponseListDTO<PlanDTO>> getPlans(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "") String name,
+            @RequestParam(defaultValue = "") String description
     ) {
-        ResponseListDTO<PlanDTO> data = plansService.getPlans(page, size);
+        ResponseListDTO<PlanDTO> data = plansService.getPlans(page, size, name, description);
         return ResponseEntity.ok(data);
     }
 
