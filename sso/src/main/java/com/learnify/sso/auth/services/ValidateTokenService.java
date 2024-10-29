@@ -15,6 +15,9 @@ import org.springframework.stereotype.Service;
 public class ValidateTokenService {
     final private Logger logger = LoggerFactory.getLogger(ValidateTokenService.class.getName());
 
+    @Value("${api.security.token.issuer}")
+    private String issuer;
+
     @Value("${api.security.token.secret}")
     private String secret;
 
@@ -22,7 +25,7 @@ public class ValidateTokenService {
         try {
             Algorithm algorithm = Algorithm.HMAC256(secret);
             String subjectString = JWT.require(algorithm)
-                    .withIssuer("learnify-sso")
+                    .withIssuer(issuer)
                     .build()
                     .verify(token)
                     .getSubject();

@@ -20,6 +20,9 @@ import static java.lang.String.format;
 public class GenerateTokenService {
     final private Logger logger = LoggerFactory.getLogger(GenerateTokenService.class.getName());
 
+    @Value("${api.security.token.issuer}")
+    private String issuer;
+
     @Value("${api.security.token.secret}")
     private String secret;
 
@@ -35,7 +38,7 @@ public class GenerateTokenService {
 
             Algorithm algorithm = Algorithm.HMAC256(secret);
             return JWT.create()
-                    .withIssuer("learnify-sso")
+                    .withIssuer(issuer)
                     .withSubject(subjectJson)
                     .withExpiresAt(this.generateExpirationDate())
                     .sign(algorithm);
