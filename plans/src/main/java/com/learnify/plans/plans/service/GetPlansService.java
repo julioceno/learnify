@@ -5,6 +5,7 @@ import com.learnify.plans.plans.domain.PlanRepository;
 import com.learnify.plans.common.FilterSpecification;
 import com.learnify.plans.plans.dto.PlanDTO;
 import com.learnify.plans.plans.dto.ResponseListDTO;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,10 +17,9 @@ import org.springframework.stereotype.Service;
 
 import static java.lang.String.format;
 
+@Slf4j
 @Service
 public class GetPlansService {
-    private final Logger logger = LoggerFactory.getLogger(GetPlansService.class.getName());
-
     @Autowired
     private PlanRepository planRepository;
 
@@ -38,15 +38,15 @@ public class GetPlansService {
                 plans.stream().toList()
         );
 
-        logger.info("Return list...");
+        log.info("Return list...");
         return responseListDTO;
     }
 
     private Page<PlanDTO> getPlans(Specification<Plan> filters, Pageable pageable) {
-        logger.info("Finding plans...");
+        log.info("Finding plans...");
         Page<PlanDTO> plans = planRepository.findAll(filters, pageable)
                 .map(PlanDTO::new);
-        logger.info(format("%s plans found", plans.getTotalElements()));
+        log.info(format("%s plans found", plans.getTotalElements()));
         return plans;
     }
 }

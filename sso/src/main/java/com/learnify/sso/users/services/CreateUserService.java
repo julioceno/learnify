@@ -5,6 +5,7 @@ import com.learnify.sso.users.dto.UserDTO;
 import com.learnify.sso.users.domain.User;
 import com.learnify.sso.users.domain.UserRepository;
 import com.learnify.sso.users.dto.CreateUserDTO;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,10 +15,9 @@ import org.springframework.stereotype.Service;
 import java.util.Optional;
 import static java.lang.String.format;
 
+@Slf4j
 @Service
 public class CreateUserService {
-    private final Logger logger = LoggerFactory.getLogger(CreateUserDTO.class.getName());
-
     @Autowired
     private UserRepository userRepository;
 
@@ -29,10 +29,11 @@ public class CreateUserService {
     }
 
     private void verifyIfUserAlreadyExists(final String email) {
+        log.info(format("Finding user with email %s", email));
         Optional<User> user = userRepository.findByEmail(email);
 
         if (user.isPresent()) {
-            logger.info(format("User with email %s already exists", email));
+            log.info(format("User with email %s already exists", email));
             throw new BadRequestException("Usuário já existe");
         }
     }
@@ -46,7 +47,7 @@ public class CreateUserService {
         userToCreate.setPassword(encryptedPassword);
 
         userRepository.save(userToCreate);
-        logger.info(format("User with email %s created", dto.getEmail()));
+        log.info(format("User with email %s created", dto.getEmail()));
 
         return userToCreate;
     }
