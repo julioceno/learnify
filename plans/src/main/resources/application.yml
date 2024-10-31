@@ -7,3 +7,6 @@ spring:
     username: learnify
     password: password
     driver-class-name: org.postgresql.Driver
+
+server:
+  port: 8082
