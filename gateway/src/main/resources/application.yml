@@ -1,0 +1,14 @@
+spring:
+  application:
+    name: gateway
+  cloud:
+    gateway:
+      routes:
+        - id: sso
+          uri: http://localhost:8081
+          predicates:
+            - Path=/auth/sign-in,/users,/users/{segment}
+        - id: plans
+          uri: http://localhost:8082
+          predicates:
+            - Path=/plans,/plans/{segment}
