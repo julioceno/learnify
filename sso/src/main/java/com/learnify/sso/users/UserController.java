@@ -21,7 +21,6 @@ public class UserController {
 
     @PostMapping
     private ResponseEntity create(
-            // TODO: validar a questao da validação de DTO
             @Valid @RequestBody CreateUserDTO dto
     ) {
         final UserDTO userDTO = userService.create(dto);
