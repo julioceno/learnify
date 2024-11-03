@@ -1,5 +1,7 @@
 package com.learnify.gateway.infra.exceptions;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.learnify.gateway.common.exceptions.StatusErrorException;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
@@ -9,9 +11,7 @@ import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebExceptionHandler;
 import reactor.core.publisher.Mono;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.time.Instant;
 
 @Component
@@ -35,20 +35,17 @@ public class GlobalErrorWebExceptionHandler implements WebExceptionHandler {
                 exchange.getRequest().getURI().getPath()
         );
 
-        byte[] bytes = toBytes(standardError);
-        return exchange
-                .getResponse()
-                .writeWith(Mono.just(exchange.getResponse()
-                .bufferFactory().wrap(bytes)));
-    }
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            objectMapper.registerModule(new JavaTimeModule());
+            byte[] jsonBytes = objectMapper.writeValueAsBytes(standardError);
 
-    private byte[] toBytes(StandardError obj)  {
-        try (ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            ObjectOutputStream out = new ObjectOutputStream(bos)) {
-            out.writeObject(obj);
-            return bos.toByteArray();
+            return exchange
+                    .getResponse()
+                    .writeWith(Mono.just(exchange.getResponse()
+                    .bufferFactory().wrap(jsonBytes)));
         } catch (IOException e) {
-            throw new RuntimeException("Entre em contato com o suporte");
+            return Mono.error(e);
         }
     }
 }

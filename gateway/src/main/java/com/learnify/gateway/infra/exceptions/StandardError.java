@@ -10,7 +10,6 @@ import java.time.Instant;
 @NoArgsConstructor
 @Getter
 @Setter
-@ToString
 public class StandardError implements Serializable {
     @JsonFormat(
             shape = JsonFormat.Shape.STRING,
