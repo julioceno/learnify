@@ -53,6 +53,7 @@ public class ValidateTokenFilter implements GlobalFilter, Ordered {
 
     private Boolean isPublicRoute(String path, HttpMethod method) {
         return (path.equals("/auth/sign-in") && method == HttpMethod.POST)
+                || (path.equals("/auth/logout") && method == HttpMethod.POST)
                 || (path.equals("/users") && method == HttpMethod.POST)
                 || (path.equals("/users/me") && method == HttpMethod.GET);
     }
