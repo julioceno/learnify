@@ -4,8 +4,7 @@ import com.learnify.sso.common.exceptions.BadRequestException;
 import com.learnify.sso.common.exceptions.NotFoundException;
 import com.learnify.sso.common.exceptions.UnauthorizedException;
 import jakarta.servlet.http.HttpServletRequest;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.ObjectError;
@@ -16,9 +15,9 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import java.time.Instant;
 import java.util.stream.Collectors;
 
+@Slf4j
 @ControllerAdvice
 public class ResourceExceptionHandler {
-    final private Logger logger = LoggerFactory.getLogger(ResourceExceptionHandler.class.getName());
 
     @ExceptionHandler(NotFoundException.class)
     public ResponseEntity<StandardError> notFound(
@@ -74,7 +73,7 @@ public class ResourceExceptionHandler {
             RuntimeException e,
             HttpServletRequest request
     ) {
-        logger.error("An error ocurred", e);
+        log.error("An error ocurred", e);
         String error = "Internal Server Error";
         HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
         String message = "Ocorreu um erro inesperado, entre em contato com o suporte.";
