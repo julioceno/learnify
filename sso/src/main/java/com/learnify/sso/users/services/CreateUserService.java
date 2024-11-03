@@ -8,7 +8,9 @@ import com.learnify.sso.users.dto.CreateUserDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.parsing.BeanEntry;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -42,12 +44,11 @@ public class CreateUserService {
         String encryptedPassword = new BCryptPasswordEncoder().encode(dto.getPassword());
 
         User userToCreate = new User();
-        userToCreate.setEmail(dto.getEmail());
-        userToCreate.setName(dto.getName());
+        BeanUtils.copyProperties(dto, userToCreate);
         userToCreate.setPassword(encryptedPassword);
 
         userRepository.save(userToCreate);
-        log.info(format("User with email %s created", dto.getEmail()));
+        log.info("User with email {} created", dto.getEmail());
 
         return userToCreate;
     }
