@@ -12,7 +12,7 @@ api:
   security:
     token:
       secret: 3afd43e7-12db-4e68-a157-bd078b611dcd
-      expireIn: 60
+      expireIn: 600
       issuer: learnify
 
 server:
