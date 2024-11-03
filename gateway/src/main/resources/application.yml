@@ -10,7 +10,7 @@ spring:
         - id: sso
           uri: http://localhost:8081
           predicates:
-            - Path=/auth/sign-in,/users,/users/{segment}
+            - Path=/auth/{segment},/users,/users/{segment}
         - id: plans
           uri: http://localhost:8082
           predicates:
