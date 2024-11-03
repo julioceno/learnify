@@ -1,4 +1,4 @@
-package com.learnify.gateway.config;
+package com.learnify.gateway.infra.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
