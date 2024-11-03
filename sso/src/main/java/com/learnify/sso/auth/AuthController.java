@@ -4,6 +4,7 @@ import com.learnify.sso.auth.dto.SignInUserDTO;
 import com.learnify.sso.auth.dto.TokensDTO;
 import com.learnify.sso.auth.services.AuthService;
 import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +33,18 @@ public class AuthController {
         cookie.setPath("/");
         response.addCookie(cookie);
 
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("logout")
+    public ResponseEntity logout() {
+        Cookie cookie = new Cookie("token", null);
+        cookie.setSecure(true);
+        cookie.setHttpOnly(true);
+        cookie.setPath("/");
+        cookie.setMaxAge(0);
+
+        response.addCookie(cookie);
         return ResponseEntity.noContent().build();
     }
 }
