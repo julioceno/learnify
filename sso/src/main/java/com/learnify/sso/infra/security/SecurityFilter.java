@@ -10,6 +10,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -21,6 +22,7 @@ import java.util.Optional;
 
 @Component
 @AllArgsConstructor
+@Slf4j
 public class SecurityFilter extends OncePerRequestFilter {
     private final String tokenNameCookie = "token";
     private final ValidateTokenService validateTokenService;
@@ -32,21 +34,31 @@ public class SecurityFilter extends OncePerRequestFilter {
         SubjectDTO subjectDTO = decodeToken(token);
 
         if (subjectDTO != null) {
-            User user = userRepository.findByEmail(subjectDTO.email()).orElse(null);
-            var authentication = new UsernamePasswordAuthenticationToken(user, null, null);
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+            setUserInSecurityContext(subjectDTO);
         }
 
+        log.info("Call next step in filter chain...");
         filterChain.doFilter(request, response);
     }
 
     private String getToken(HttpServletRequest request) {
-        if (request.getCookies() == null) return null;
+        log.info("Get token...");
+        if (request.getCookies() == null) {
+            log.info("Cookies not exists");
+            return null;
+        };
         Optional<jakarta.servlet.http.Cookie> token = Arrays.stream(request.getCookies())
                 .filter(item -> tokenNameCookie.equals(item.getName()))
                 .findFirst();
 
-        return token.map(Cookie::getValue).orElse(null);
+        String tokenObtained = token.map(Cookie::getValue).orElse(null);
+        if (tokenObtained == null) {
+            log.info("Token not exists");
+            return null;
+        }
+
+        log.info("Token exists");
+        return tokenObtained;
     }
 
     private SubjectDTO decodeToken(String token) {
@@ -55,5 +67,15 @@ public class SecurityFilter extends OncePerRequestFilter {
         } catch (RuntimeException e) {
             return null;
         }
+    }
+
+    private void setUserInSecurityContext(SubjectDTO subjectDTO) {
+        log.info("Finding user by email...");
+        User user = userRepository.findByEmail(subjectDTO.email()).orElse(null);
+        log.info("User obtained, generate authenticationUser...");
+        var authentication = new UsernamePasswordAuthenticationToken(user, null, null);
+
+        log.info("Set authentication in context...");
+        SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 }
