@@ -1,5 +1,8 @@
 package com.learnify.gateway.infra.filters;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.learnify.gateway.common.exceptions.BadRequestException;
 import com.learnify.gateway.common.exceptions.UnauthorizedException;
 import com.learnify.gateway.dto.UserDTO;
 import com.learnify.gateway.infra.exceptions.StandardError;
@@ -38,9 +41,16 @@ public class ValidateTokenFilter implements GlobalFilter, Ordered {
             return chain.filter(exchange);
         }
 
-        boolean tokenIsValid = validateToken(exchange);
-        if (!tokenIsValid) {
+        UserDTO userDTO = validateToken(exchange);
+        if (userDTO == null) {
             return Mono.error(new UnauthorizedException());
+        }
+
+        try {
+            setUserInHeader(exchange, userDTO);
+        } catch (JsonProcessingException e) {
+            log.error("Ocurred an error when try serialize user in json", e);
+            return Mono.error(new BadRequestException("Ocorreu um erro, entre em contato com o suporte"));
         }
 
         return chain.filter(exchange);
@@ -59,12 +69,12 @@ public class ValidateTokenFilter implements GlobalFilter, Ordered {
     }
 
 
-    private boolean validateToken(ServerWebExchange exchange) {
+    private UserDTO validateToken(ServerWebExchange exchange) {
         HttpCookie cookie = exchange.getRequest().getCookies()
                 .getFirst("token");
 
         if (cookie == null) {
-            return false;
+            return null;
         }
 
         try {
@@ -76,7 +86,7 @@ public class ValidateTokenFilter implements GlobalFilter, Ordered {
             if (response.getStatusCode().is2xxSuccessful()) {
                 UserDTO user = response.getBody();
                 log.info("User receveid: {}", user.toString());
-                return true;
+                return user;
             }
         } catch (RestClientResponseException e) {
             log.info(
@@ -86,7 +96,16 @@ public class ValidateTokenFilter implements GlobalFilter, Ordered {
             );
         }
 
-        return false;
+        return null;
+    }
+
+    private void setUserInHeader(ServerWebExchange exchange, UserDTO userDTO) throws JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        String json = objectMapper.writeValueAsString(userDTO);
+
+        exchange.getRequest().mutate()
+                .header("X-User", json)
+                .build();
     }
 }
 
