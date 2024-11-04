@@ -4,7 +4,6 @@ import com.learnify.sso.auth.dto.SignInUserDTO;
 import com.learnify.sso.auth.dto.TokensDTO;
 import com.learnify.sso.auth.services.AuthService;
 import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;

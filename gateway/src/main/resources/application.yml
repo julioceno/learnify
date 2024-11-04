@@ -15,6 +15,10 @@ spring:
           uri: http://localhost:8082
           predicates:
             - Path=/plans,/plans/{segment}
+        - id: order
+          uri: http://localhost:8083
+          predicates:
+            - Path=/order,/order/{segment}
 
 api:
   sso:
