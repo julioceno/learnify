@@ -1,4 +1,4 @@
-package com.learnify.order.exceptions;
+package com.learnify.order.infra.exception;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;

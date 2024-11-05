@@ -4,9 +4,8 @@ package com.learnify.order.common;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.learnify.order.common.dto.UserDTO;
-import com.learnify.order.common.exceptions.BadRequestException;
-import com.learnify.order.common.exceptions.UnauthorizedException;
-import jakarta.servlet.UnavailableException;
+import com.learnify.order.common.exception.BadRequestException;
+import com.learnify.order.common.exception.UnauthorizedException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 

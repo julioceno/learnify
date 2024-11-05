@@ -1,8 +1,8 @@
-package com.learnify.order.exceptions;
+package com.learnify.order.infra.exception;
 
-import com.learnify.order.common.exceptions.BadRequestException;
-import com.learnify.order.common.exceptions.NotFoundException;
-import com.learnify.order.common.exceptions.UnauthorizedException;
+import com.learnify.order.common.exception.BadRequestException;
+import com.learnify.order.common.exception.NotFoundException;
+import com.learnify.order.common.exception.UnauthorizedException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
