@@ -2,6 +2,7 @@ package com.learnify.order.order;
 
 import com.learnify.order.common.Util;
 import com.learnify.order.order.dto.CreateOrderDTO;
+import com.learnify.order.order.service.OrderService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,9 +18,13 @@ public class OrderController {
     @Autowired
     private HttpServletRequest request;
 
+    @Autowired
+    private OrderService orderService;
+
     @PostMapping
     public ResponseEntity create(@RequestBody @Valid CreateOrderDTO createOrderDTO) {
         String userId = Util.deserializeUser(request).getId();
-        return ResponseEntity.ok().body(userId);
+        orderService.create(userId, createOrderDTO);
+        return ResponseEntity.noContent().build();
     }
 }
