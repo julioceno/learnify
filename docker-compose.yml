@@ -21,6 +21,16 @@ services:
       - 'POSTGRES_DB=learnify_plans'
     ports:
       - 5432:5432
+  redis:
+    image: redis
+    restart: always
+    volumes:
+      - redis_data:/data/data
+    environment:
+      - 'REDIS_PASSWORD=password'
+    ports:
+      - 6379:6379
 volumes:
   postgres_sso_data:
   postgres_plans_data:
+  redis_data:
