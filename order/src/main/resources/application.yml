@@ -2,6 +2,10 @@ spring:
   application:
     name: order
 
+redis:
+  host: localhost
+  port: 6378
+
 api:
   order:
     idempotency:

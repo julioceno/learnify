@@ -14,7 +14,7 @@ import static java.lang.String.format;
 @Slf4j
 public class CreateOrderService {
     @Value("${api.order.idempotency.time}")
-    private Long idempotencyTime;
+    private int idempotencyTime;
 
     @Autowired
     private IdempotencyService idempotencyService;
