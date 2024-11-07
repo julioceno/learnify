@@ -1,15 +1,18 @@
 spring:
   application:
     name: order
+  redis:
+    host: localhost
+    port: 6378
 
-redis:
-  host: localhost
-  port: 6378
 
 api:
   order:
     idempotency:
       time: 600
+  queue:
+    payment_url: example
+
 
 server:
   port: 8083

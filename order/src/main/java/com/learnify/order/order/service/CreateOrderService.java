@@ -2,6 +2,7 @@ package com.learnify.order.order.service;
 
 import com.learnify.order.common.exception.BadRequestException;
 import com.learnify.order.common.service.IdempotencyService;
+import com.learnify.order.common.service.PublishMessageQueueService;
 import com.learnify.order.order.dto.CreateOrderDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,12 +17,21 @@ public class CreateOrderService {
     @Value("${api.order.idempotency.time}")
     private int idempotencyTime;
 
+    @Value("${api.queue.payment_url}")
+    private String paymentUrl;
+
     @Autowired
     private IdempotencyService idempotencyService;
+
+    @Autowired
+    private PublishMessageQueueService publishMessageQueueService;
+
 
     public void run(String userId, CreateOrderDTO createOrderDTO) {
         String key = generateKey(userId, createOrderDTO);
         createIdempotencyId(key);
+
+        publishMessageQueueService.run(paymentUrl, createOrderDTO);
     }
 
     private String generateKey(String userId, CreateOrderDTO createOrderDTO) {

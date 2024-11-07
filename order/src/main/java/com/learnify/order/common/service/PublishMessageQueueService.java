@@ -7,16 +7,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import com.amazonaws.services.sqs.AmazonSQS;
+import software.amazon.awssdk.services.sqs.SqsClient;
+import software.amazon.awssdk.services.sqs.model.SendMessageRequest;
 
 @Service
 @Slf4j
 public class PublishMessageQueueService {
-    @Value("${queueUrl}")
-    private String queueUrl;
-
     @Autowired
-    private AmazonSQS amazonSQS;
+    private SqsClient sqsClient;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -24,12 +22,13 @@ public class PublishMessageQueueService {
     public void run(final String queueUrl, Object body) {
         log.info("Create object to send message");
         String converted = convertObjectToJson(body);
-        var message = new com.amazonaws.services.sqs.model.SendMessageRequest()
-               .withQueueUrl(queueUrl)
-               .withMessageBody(converted);
+        var message = SendMessageRequest.builder()
+                .queueUrl(queueUrl)
+                .messageBody(converted)
+                .build();
 
         log.info("Object created, sending message to queue...");
-        amazonSQS.sendMessage(message);
+        sqsClient.sendMessage(message);
         log.info("Messaged sent");
     }
 
