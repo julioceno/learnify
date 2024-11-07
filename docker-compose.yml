@@ -30,7 +30,21 @@ services:
       - 'REDIS_PASSWORD=password'
     ports:
       - 6378:6379
+  localstack:
+    container_name: localstack-main
+    image: localstack/localstack
+    ports:
+      - "127.0.0.1:4566:4566"          
+      - "127.0.0.1:4510-4559:4510-4559" 
+    environment:
+      - SERVICES=iam,sqs,lambda,events,logs
+      - DEBUG=-0
+    volumes:
+      #- ./bootstrap:/etc/localstack/init/ready.d
+      - localstack-data:/data/lib/localstack
+      - /var/run/docker.sock:/var/run/docker.sock
 volumes:
   postgres_sso_data:
   postgres_plans_data:
   redis_data:
+  localstack-data:
