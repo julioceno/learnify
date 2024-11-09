@@ -13,8 +13,7 @@ create_queue() {
 	AWS_ACCESS_KEY_ID=fakeAccessKey AWS_SECRET_ACCESS_KEY=fakeSecretKey \
 	aws --endpoint-url "${LOCALSTACK_URL}" sqs create-queue \
 	--queue-name "${QUEUE_NAME_TO_CREATE}" \
-	--region us-east-1 \
-	--debug
+	--region us-east-1
 }
 
 create_queue "signature_plan"
