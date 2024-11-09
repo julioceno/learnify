@@ -11,7 +11,7 @@ import software.amazon.awssdk.services.sqs.SqsAsyncClient;
 import java.net.URI;
 
 @Configuration
-public class AwsConfiguration {
+public class AwsConfig {
     @Value("${aws.credentials.access-key}")
     private String accessKey;
 
