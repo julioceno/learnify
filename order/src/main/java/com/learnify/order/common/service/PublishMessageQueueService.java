@@ -5,16 +5,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.learnify.order.common.exception.BadRequestException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import software.amazon.awssdk.services.sqs.SqsClient;
+import software.amazon.awssdk.services.sqs.SqsAsyncClient;
 import software.amazon.awssdk.services.sqs.model.SendMessageRequest;
 
 @Service
 @Slf4j
 public class PublishMessageQueueService {
     @Autowired
-    private SqsClient sqsClient;
+    private SqsAsyncClient sqsAsyncClient;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -28,7 +27,7 @@ public class PublishMessageQueueService {
                 .build();
 
         log.info("Object created, sending message to queue...");
-        sqsClient.sendMessage(message);
+        sqsAsyncClient.sendMessage(message);
         log.info("Messaged sent");
     }
 
