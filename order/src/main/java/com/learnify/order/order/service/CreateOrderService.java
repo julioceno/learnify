@@ -31,7 +31,12 @@ public class CreateOrderService {
         String key = generateKey(userId, createOrderDTO);
         createIdempotencyId(key);
 
-        publishMessageQueueService.run(paymentUrl, createOrderDTO);
+        try {
+            publishMessageQueueService.run(paymentUrl, createOrderDTO);
+        } catch (RuntimeException e) {
+            revokeIdempotencyId(key);
+            throw e;
+        }
     }
 
     private String generateKey(String userId, CreateOrderDTO createOrderDTO) {
@@ -48,5 +53,12 @@ public class CreateOrderService {
         }
 
         log.info("Idempotency id created");
+    }
+
+    // TODO: testar esse fluxo
+    private void revokeIdempotencyId(String key) {
+        log.info("Deleting idempotency id...");
+        idempotencyService.remove(key);
+        log.info("Id deleted");
     }
 }

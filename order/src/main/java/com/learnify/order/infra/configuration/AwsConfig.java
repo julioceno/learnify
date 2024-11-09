@@ -25,7 +25,7 @@ public class AwsConfig {
     private String endpoint;
 
     @Bean
-    public SqsAsyncClient sqsClient() {
+    public SqsAsyncClient sqsAsyncClient() {
         AwsBasicCredentials credentials = AwsBasicCredentials.create(accessKey, secretKey);
         return SqsAsyncClient.builder()
                 .credentialsProvider(StaticCredentialsProvider.create(credentials))
