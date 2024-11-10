@@ -1,6 +1,7 @@
 package com.learnify.payment.signature.dto;
 
-public record PaymentDataDTO(
+public record SignatureDTO(
+        String userId,
         String planId,
         String cardNumber,
         String expMonth,
