@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.util.Date;
 
@@ -17,6 +18,7 @@ import java.util.Date;
 @NoArgsConstructor
 @Getter
 @Setter
+@EntityListeners(AuditingEntityListener.class)
 public class SignaturePermission {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -26,7 +28,7 @@ public class SignaturePermission {
 
     @ManyToOne
     @JoinColumn(name = "signature_id")
-    private Plan signature;
+    private Signature signature;
 
     @ManyToOne
     @JoinColumn(name = "permission_id")

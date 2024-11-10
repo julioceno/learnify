@@ -28,7 +28,7 @@ public class Plan {
     private String description;
     private BigDecimal value;
 
-    @OneToMany(mappedBy = "plan", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "plan", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<Permission> permissions = new ArrayList<>();
 
     @CreatedDate
