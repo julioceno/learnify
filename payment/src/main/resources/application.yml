@@ -10,7 +10,10 @@ aws:
   endpoint: http://localhost:4566
   services:
     queue:
-      payment-url: https://localhost.localstack.cloud:4566/000000000000/signature_plan
+      url:
+        return-payment: https://localhost.localstack.cloud:4566/000000000000/return-payment
+      name:
+        payment: payment
 
 server:
   port: 8084

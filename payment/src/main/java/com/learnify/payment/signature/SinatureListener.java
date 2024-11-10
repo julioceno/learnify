@@ -11,8 +11,7 @@ public class SinatureListener {
     @Autowired
     private SignatureService signatureService;
 
-    // TODO: adicionar no properties.yml
-    @SqsListener("payment")
+    @SqsListener("${aws.services.queue.name.payment}")
     public void receiveMessages(SignatureDTO signatureDTO) {
         signatureService.run(signatureDTO);
     }

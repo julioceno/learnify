@@ -17,5 +17,7 @@ create_queue() {
 }
 
 create_queue "payment"
+create_queue "return-payment"
+
 create_queue "signature"
 create_queue "return-signature"

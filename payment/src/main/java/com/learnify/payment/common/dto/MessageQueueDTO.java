@@ -1,6 +1,6 @@
 package com.learnify.payment.common.dto;
 
-public record MessageQueueDTO(
+public record MessageQueueDTO<T>(
         Boolean ok,
-        String userId
+        T data
 ){}

@@ -1,4 +1,7 @@
 package com.learnify.payment.signature.dto;
 
-public class ReturnPaymentDTO {
+public record ReturnPaymentDTO (
+        String userId,
+        String planId
+){
 }
