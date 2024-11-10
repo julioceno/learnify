@@ -43,10 +43,6 @@ public class CreateOrderService {
         }
     }
 
-    private String generateKey(String userId, CreateOrderDTO createOrderDTO) {
-        return format("%s-%s", userId, createOrderDTO.planId());
-    }
-
     private void createIdempotencyId(String key) {
         log.info("Generate idempotency id...");
         boolean isSuccess = idempotencyService.create(key, idempotencyTime);

@@ -16,7 +16,10 @@ aws:
   endpoint: http://localhost:4566
   services:
     queue:
-      signature-url: https://localhost.localstack.cloud:4566/000000000000/signature
-      return-signature: https://localhost.localstack.cloud:4566/000000000000/return-signature
+      url:
+        return-signature: https://localhost.localstack.cloud:4566/000000000000/return-signature
+      name:
+        signature: signature
+
 server:
   port: 8082
