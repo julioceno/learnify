@@ -1,6 +1,7 @@
 package com.learnify.order.order;
 
 import com.learnify.order.common.dto.MessageQueueDTO;
+import com.learnify.order.common.dto.UserQueueDTO;
 import com.learnify.order.order.dto.ReturnPaymentDTO;
 import com.learnify.order.order.service.HandleReturnPaymentService;
 import com.learnify.order.order.service.HandleReturnSignatureService;
@@ -16,7 +17,7 @@ public class ResultSignatureListener {
     private final HandleReturnPaymentService handleReturnPaymentService;
 
     @SqsListener("${aws.services.queue.name.return-signature}")
-    public void returnSignature(MessageQueueDTO<String> messageQueueDTO) {
+    public void returnSignature(MessageQueueDTO<UserQueueDTO> messageQueueDTO) {
         handleResultSignatureService.run(messageQueueDTO);
     }
 
