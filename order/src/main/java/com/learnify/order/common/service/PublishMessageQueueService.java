@@ -2,6 +2,7 @@ package com.learnify.order.common.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.learnify.order.common.dto.MessageQueueDTO;
 import com.learnify.order.common.exception.BadRequestException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +19,7 @@ public class PublishMessageQueueService {
     @Autowired
     private ObjectMapper objectMapper;
 
-    public void run(final String queueUrl, Object body) {
+    public <T>void run(final String queueUrl, MessageQueueDTO<T> body) {
         log.info("Create object to send message");
         String converted = convertObjectToJson(body);
         var message = SendMessageRequest.builder()
