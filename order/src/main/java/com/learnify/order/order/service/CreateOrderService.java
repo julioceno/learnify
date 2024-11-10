@@ -4,7 +4,9 @@ import com.learnify.order.common.exception.BadRequestException;
 import com.learnify.order.common.service.IdempotencyService;
 import com.learnify.order.common.service.PublishMessageQueueService;
 import com.learnify.order.order.dto.CreateOrderDTO;
+import com.learnify.order.order.dto.CreatePaymentDTO;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -30,7 +32,11 @@ public class CreateOrderService {
         createIdempotencyId(userId);
 
         try {
-            publishMessageQueueService.run(paymentUrl, createOrderDTO);
+            CreatePaymentDTO createPaymentDTO = new CreatePaymentDTO();
+            BeanUtils.copyProperties(createOrderDTO, createPaymentDTO);
+            createPaymentDTO.setUserId(userId);
+
+            publishMessageQueueService.run(paymentUrl, createPaymentDTO);
         } catch (RuntimeException e) {
             revokeIdempotencyId(userId);
             throw e;
