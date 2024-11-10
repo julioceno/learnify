@@ -1,5 +1,6 @@
 package com.learnify.plans.signatures;
 
+import com.learnify.plans.common.dto.MessageQueueDTO;
 import com.learnify.plans.signatures.dto.SignatureDTO;
 import com.learnify.plans.signatures.services.CreateSignatureService;
 import io.awspring.cloud.sqs.annotation.SqsListener;
@@ -12,7 +13,7 @@ public class SignatureListener {
     private CreateSignatureService createSignatureService;
 
     @SqsListener("${aws.services.queue.name.signature}")
-    public void receiveMessages(SignatureDTO signatureDTO) {
+    public void receiveMessages(MessageQueueDTO<SignatureDTO> signatureDTO) {
         createSignatureService.run(signatureDTO);
     }
 }

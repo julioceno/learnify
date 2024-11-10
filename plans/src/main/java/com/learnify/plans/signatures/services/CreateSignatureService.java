@@ -21,7 +21,7 @@ import java.util.Optional;
 @Service
 @Slf4j
 public class CreateSignatureService {
-    @Value("${aws.services.queue.return-signature}")
+    @Value("${aws.services.queue.url.return-signature}")
     private String returnSignature;
 
     private final SignatureRepository signatureRepository;
@@ -34,15 +34,15 @@ public class CreateSignatureService {
         this.publishMessageQueueService = publishMessageQueueService;
     }
 
-    public void run(SignatureDTO signatureDTO) {
+    public void run(MessageQueueDTO<SignatureDTO> signatureDTO) {
         try {
-            validateIfExists(signatureDTO.userId());
-            Plan plan = getPlan(signatureDTO.planId());
+            validateIfExists(signatureDTO.data().userId());
+            Plan plan = getPlan(signatureDTO.data().planId());
             createSignature(signatureDTO, plan);
 
-            sendMessage(true, signatureDTO.userId());
+            sendMessage(true, signatureDTO.data().userId());
         } catch (RuntimeException e) {
-            sendMessage(false, signatureDTO.userId());
+            sendMessage(false, signatureDTO.data().userId());
         }
     }
 
@@ -68,7 +68,7 @@ public class CreateSignatureService {
         return plan;
     }
 
-    private void createSignature(SignatureDTO signatureDTO, Plan plan) {
+    private void createSignature(MessageQueueDTO<SignatureDTO> signatureDTO, Plan plan) {
         log.info("Creating signature...");
         Signature signatureToCreate = new Signature();
         BeanUtils.copyProperties(signatureDTO, signatureToCreate);
