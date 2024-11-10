@@ -1,6 +1,7 @@
 package com.learnify.plans.infra.exceptions;
 
 import com.learnify.plans.common.exceptions.BadRequestException;
+import com.learnify.plans.common.exceptions.ConflictException;
 import com.learnify.plans.common.exceptions.NotFoundException;
 import com.learnify.plans.common.exceptions.UnauthorizedException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -66,6 +67,17 @@ public class ResourceExceptionHandler {
                 .collect(Collectors.joining(", "));
         HttpStatus status = HttpStatus.BAD_REQUEST;
         StandardError err = new StandardError(Instant.now(), status.value(), error, errors, request.getRequestURI());
+        return ResponseEntity.status(status).body(err);
+    }
+
+    @ExceptionHandler(ConflictException.class)
+    public ResponseEntity<StandardError> methodArgumentNotValid(
+            ConflictException e,
+            HttpServletRequest request
+    ) {
+        String error = "Conflict";
+        HttpStatus status = HttpStatus.CONFLICT;
+        StandardError err = new StandardError(Instant.now(), status.value(), error, e.getMessage(), request.getRequestURI());
         return ResponseEntity.status(status).body(err);
     }
 
