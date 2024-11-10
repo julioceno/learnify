@@ -12,7 +12,7 @@ public class ResultSignatureListener {
     private HandleReturnSignatureService handleResultSignatureService;
 
     @SqsListener("${aws.services.queue.name.return-signature}")
-    public void returnSignature(MessageQueueDTO messageQueueDTO) {
+    public void returnSignature(MessageQueueDTO<String> messageQueueDTO) {
         handleResultSignatureService.run(messageQueueDTO);
     }
 }

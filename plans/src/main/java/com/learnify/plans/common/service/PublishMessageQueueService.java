@@ -19,7 +19,7 @@ public class PublishMessageQueueService {
     @Autowired
     private ObjectMapper objectMapper;
 
-    public void run(final String queueUrl, MessageQueueDTO body) {
+    public <T>void run(final String queueUrl, MessageQueueDTO<T> body) {
         log.info("Create object to send message");
         String converted = convertObjectToJson(body);
         var message = SendMessageRequest.builder()
@@ -32,7 +32,7 @@ public class PublishMessageQueueService {
         log.info("Messaged sent");
     }
 
-    private String convertObjectToJson(MessageQueueDTO body) {
+    private <T>String convertObjectToJson(MessageQueueDTO<T> body) {
         try {
             return objectMapper.writeValueAsString(body);
         } catch (JsonProcessingException e) {

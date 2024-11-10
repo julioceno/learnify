@@ -9,6 +9,7 @@ import com.learnify.plans.signatures.domain.Signature;
 import com.learnify.plans.signatures.domain.SignaturePermission;
 import com.learnify.plans.signatures.domain.SignatureRepository;
 import com.learnify.plans.signatures.dto.SignatureDTO;
+import com.learnify.plans.signatures.dto.UserId;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -96,7 +97,7 @@ public class CreateSignatureService {
     }
 
     private void sendMessage(Boolean ok, String userId) {
-        MessageQueueDTO message = new MessageQueueDTO(ok, userId);
+        MessageQueueDTO<UserId> message = new MessageQueueDTO<UserId>(ok, new UserId(userId));
         publishMessageQueueService.run(returnSignature, message);
     }
 }

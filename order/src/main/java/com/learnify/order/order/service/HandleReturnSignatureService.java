@@ -16,12 +16,12 @@ public class HandleReturnSignatureService {
     @Autowired
     private IdempotencyService idempotencyService;
 
-    public void run(MessageQueueDTO messageQueueDTO) {
-        log.info("Received message for user {}", messageQueueDTO.userId());
+    public void run(MessageQueueDTO<String> messageQueueDTO) {
+        log.info("Received message for user {}", messageQueueDTO.data());
 
         if (messageQueueDTO.ok()) {
             log.info("Subscription is successfully, removing idempotency id...");
-            idempotencyService.remove(messageQueueDTO.userId());
+            idempotencyService.remove(messageQueueDTO.data());
             log.info("Idempotency id removed");
             return;
         }
