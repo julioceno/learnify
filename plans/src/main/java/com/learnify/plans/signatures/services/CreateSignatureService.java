@@ -1,16 +1,17 @@
 package com.learnify.plans.signatures.services;
 
+import com.learnify.plans.common.dto.MessageQueueDTO;
 import com.learnify.plans.common.exceptions.ConflictException;
+import com.learnify.plans.common.service.PublishMessageQueueService;
 import com.learnify.plans.plans.domain.Plan;
 import com.learnify.plans.plans.domain.PlanRepository;
 import com.learnify.plans.signatures.domain.Signature;
 import com.learnify.plans.signatures.domain.SignaturePermission;
 import com.learnify.plans.signatures.domain.SignatureRepository;
 import com.learnify.plans.signatures.dto.SignatureDTO;
-import jakarta.transaction.Transactional;
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,15 +19,30 @@ import java.util.Optional;
 
 @Service
 @Slf4j
-@AllArgsConstructor
 public class CreateSignatureService {
+    @Value("${aws.services.queue.return-signature}")
+    private String returnSignature;
+
     private final SignatureRepository signatureRepository;
     private final PlanRepository planRepository;
+    private final PublishMessageQueueService publishMessageQueueService;
+
+    public CreateSignatureService(SignatureRepository signatureRepository, PlanRepository planRepository, PublishMessageQueueService publishMessageQueueService) {
+        this.signatureRepository = signatureRepository;
+        this.planRepository = planRepository;
+        this.publishMessageQueueService = publishMessageQueueService;
+    }
 
     public void run(SignatureDTO signatureDTO) {
-        validateIfExists(signatureDTO.userId());
-        Plan plan = getPlan(signatureDTO.planId());
-        createSignature(signatureDTO, plan);
+        try {
+            validateIfExists(signatureDTO.userId());
+            Plan plan = getPlan(signatureDTO.planId());
+            createSignature(signatureDTO, plan);
+
+            sendMessage(true, signatureDTO.userId());
+        } catch (RuntimeException e) {
+            sendMessage(false, signatureDTO.userId());
+        }
     }
 
     private void validateIfExists(String userId) {
@@ -77,5 +93,10 @@ public class CreateSignatureService {
 
         log.info("{} permissions generated", signaturesPermission.size());
         return signaturesPermission;
+    }
+
+    private void sendMessage(Boolean ok, String userId) {
+        MessageQueueDTO message = new MessageQueueDTO(ok, userId);
+        publishMessageQueueService.run(returnSignature, message);
     }
 }
