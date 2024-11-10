@@ -27,13 +27,12 @@ public class CreateOrderService {
     private PublishMessageQueueService publishMessageQueueService;
 
     public void run(String userId, CreateOrderDTO createOrderDTO) {
-        String key = generateKey(userId, createOrderDTO);
-        createIdempotencyId(key);
+        createIdempotencyId(userId);
 
         try {
             publishMessageQueueService.run(paymentUrl, createOrderDTO);
         } catch (RuntimeException e) {
-            revokeIdempotencyId(key);
+            revokeIdempotencyId(userId);
             throw e;
         }
     }
