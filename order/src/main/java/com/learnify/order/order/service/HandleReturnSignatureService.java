@@ -28,6 +28,5 @@ public class HandleReturnSignatureService {
 
         log.info("Subscription is fail, call payment ms for reset operation");
         publishMessageQueueService.run("", messageQueueDTO);
-        log.info("Message sent");
     }
 }

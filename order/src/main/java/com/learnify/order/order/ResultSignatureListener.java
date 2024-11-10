@@ -11,8 +11,7 @@ public class ResultSignatureListener {
     @Autowired
     private HandleReturnSignatureService handleResultSignatureService;
 
-    // TODO: pegar o nome do application.yml
-    @SqsListener("return-signature")
+    @SqsListener("${aws.services.queue.name.return-signature}")
     public void returnSignature(MessageQueueDTO messageQueueDTO) {
         handleResultSignatureService.run(messageQueueDTO);
     }

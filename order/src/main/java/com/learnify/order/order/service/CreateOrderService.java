@@ -17,7 +17,7 @@ public class CreateOrderService {
     @Value("${api.order.idempotency.time}")
     private int idempotencyTime;
 
-    @Value("${aws.services.queue.payment-url}")
+    @Value("${aws.services.queue.url.payment}")
     private String paymentUrl;
 
     @Autowired

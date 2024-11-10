@@ -14,8 +14,11 @@ aws:
   endpoint: http://localhost:4566
   services:
     queue:
-      payment-url: https://localhost.localstack.cloud:4566/000000000000/payment
-      signature-url: https://localhost.localstack.cloud:4566/000000000000/signature
+        url:
+          payment: https://localhost.localstack.cloud:4566/000000000000/payment
+          signature: https://localhost.localstack.cloud:4566/000000000000/signature
+        name:
+          return-signature: return-signature
 
 api:
   order:
