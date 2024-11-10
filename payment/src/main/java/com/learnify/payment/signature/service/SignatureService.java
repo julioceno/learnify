@@ -18,11 +18,11 @@ public class SignatureService {
     @Autowired
     private PublishMessageQueueService publishMessageQueueService;
 
-    public void run(SignatureDTO signatureDTO) {
+    public void run(MessageQueueDTO<SignatureDTO> signatureDTO) {
         // TODO: criar lógica de assinatura no stripe
 
         log.info("Return payment...");
-        ReturnPaymentDTO returnPaymentDTO = new ReturnPaymentDTO(signatureDTO.userId(), signatureDTO.planId());
+        ReturnPaymentDTO returnPaymentDTO = new ReturnPaymentDTO(signatureDTO.data().userId(), signatureDTO.data().planId());
         MessageQueueDTO<ReturnPaymentDTO> messageQueueDTO = new MessageQueueDTO<ReturnPaymentDTO>(true, returnPaymentDTO);
         publishMessageQueueService.run(returnPayment, messageQueueDTO);
     }
