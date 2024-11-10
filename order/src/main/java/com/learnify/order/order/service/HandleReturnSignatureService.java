@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
-public class HandleResultSignatureService {
+public class HandleReturnSignatureService {
     @Autowired
     private PublishMessageQueueService publishMessageQueueService;
 
@@ -22,7 +22,7 @@ public class HandleResultSignatureService {
         if (messageQueueDTO.ok()) {
             log.info("Subscription is successfully, removing idempotency id...");
             idempotencyService.remove(messageQueueDTO.userId());
-            log.info("Idempotency removed");
+            log.info("Idempotency id removed");
             return;
         }
 

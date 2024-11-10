@@ -1,7 +1,7 @@
 package com.learnify.order.order;
 
 import com.learnify.order.common.dto.MessageQueueDTO;
-import com.learnify.order.order.service.HandleResultSignatureService;
+import com.learnify.order.order.service.HandleReturnSignatureService;
 import io.awspring.cloud.sqs.annotation.SqsListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -9,11 +9,11 @@ import org.springframework.stereotype.Component;
 @Component
 public class ResultSignatureListener {
     @Autowired
-    private HandleResultSignatureService handleResultSignatureService;
+    private HandleReturnSignatureService handleResultSignatureService;
 
     // TODO: pegar o nome do application.yml
-    @SqsListener("result_signature")
-    public void resultSignature(MessageQueueDTO messageQueueDTO) {
+    @SqsListener("return-signature")
+    public void returnSignature(MessageQueueDTO messageQueueDTO) {
         handleResultSignatureService.run(messageQueueDTO);
     }
 }
