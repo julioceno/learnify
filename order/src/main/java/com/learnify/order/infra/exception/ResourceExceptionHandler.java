@@ -2,7 +2,6 @@ package com.learnify.order.infra.exception;
 
 import com.learnify.order.common.exception.BadRequestException;
 import com.learnify.order.common.exception.NotFoundException;
-import com.learnify.order.common.exception.UnauthorizedException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,17 +26,6 @@ public class ResourceExceptionHandler {
     ) {
         String error = "Resource not found";
         HttpStatus status = HttpStatus.NOT_FOUND;
-        StandardError err = new StandardError(Instant.now(), status.value(), error, e.getMessage(), request.getRequestURI());
-        return ResponseEntity.status(status).body(err);
-    }
-
-    @ExceptionHandler(UnauthorizedException.class)
-    public ResponseEntity<StandardError> unauthorized(
-            UnauthorizedException e,
-            HttpServletRequest request
-    ) {
-        String error = "Unauthorized";
-        HttpStatus status = HttpStatus.UNAUTHORIZED;
         StandardError err = new StandardError(Instant.now(), status.value(), error, e.getMessage(), request.getRequestURI());
         return ResponseEntity.status(status).body(err);
     }
