@@ -16,4 +16,5 @@ create_queue() {
 	--region us-east-1
 }
 
-create_queue "signature_plan"
+create_queue "payment"
+create_queue "signature"

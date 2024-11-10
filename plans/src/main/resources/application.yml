@@ -8,5 +8,15 @@ spring:
     password: password
     driver-class-name: org.postgresql.Driver
 
+aws:
+  credentials:
+    access-key: fakeAccessKey
+    secret-key: fakeSecretKey
+    region: us-east-1
+  endpoint: http://localhost:4566
+  services:
+    queue:
+      signature-url: https://localhost.localstack.cloud:4566/000000000000/signature
+
 server:
   port: 8082

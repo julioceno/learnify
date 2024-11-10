@@ -7,7 +7,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class SinatureListener {
 
-    @SqsListener("signature_plan")
+    // TODO: adicionar no properties.yml
+    @SqsListener("payment")
     public void receiveMessages(PaymentDataDTO object) {
         System.out.println(object.cardNumber());
         System.out.println(object.planId());

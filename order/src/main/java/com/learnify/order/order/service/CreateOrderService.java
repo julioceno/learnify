@@ -26,7 +26,6 @@ public class CreateOrderService {
     @Autowired
     private PublishMessageQueueService publishMessageQueueService;
 
-
     public void run(String userId, CreateOrderDTO createOrderDTO) {
         String key = generateKey(userId, createOrderDTO);
         createIdempotencyId(key);
