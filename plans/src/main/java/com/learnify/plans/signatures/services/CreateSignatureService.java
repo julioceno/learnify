@@ -71,7 +71,7 @@ public class CreateSignatureService {
     private void createSignature(MessageQueueDTO<SignatureDTO> signatureDTO, Plan plan) {
         log.info("Creating signature...");
         Signature signatureToCreate = new Signature();
-        BeanUtils.copyProperties(signatureDTO, signatureToCreate);
+        BeanUtils.copyProperties(signatureDTO.data(), signatureToCreate);
 
         List<SignaturePermission> signaturePermissions = generatePermissions(signatureToCreate, plan);
         signatureToCreate.setSignaturePermissions(signaturePermissions);

@@ -1,4 +1,4 @@
 package com.learnify.plans.signatures.dto;
 
-public record SignatureDTO (String planId, String userId){
+public record SignatureDTO(String planId, String userId){
 }
