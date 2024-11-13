@@ -12,8 +12,10 @@ aws:
     queue:
       url:
         return-payment: https://localhost.localstack.cloud:4566/000000000000/return-payment
+        return-cancel-signature: https://localhost.localstack.cloud:4566/000000000000/return-cancel-signature
       name:
         payment: payment
+        cancel-signature: cancel-signature
 
 server:
   port: 8084
