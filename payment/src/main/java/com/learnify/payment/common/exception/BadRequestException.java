@@ -1,7 +1,11 @@
 package com.learnify.payment.common.exception;
 
-public class BadRequestException extends RuntimeException {
+import org.springframework.http.HttpStatus;
+
+public class BadRequestException extends StatusErrorException  {
+    private static final HttpStatus status = HttpStatus.BAD_REQUEST;
+
     public BadRequestException(String msg) {
-        super(msg);
+        super(status, msg);
     }
 }

@@ -19,7 +19,6 @@ public class PlanDTO {
     private String name;
     private String description;
     private BigDecimal value;
-    private 
     private List<PermissionDTO> permissions;
 
     public PlanDTO(Plan plan) {
