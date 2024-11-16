@@ -29,6 +29,9 @@ public class User  implements UserDetails {
     private String email;
     private String password;
 
+    @Column(name = "customer_id")
+    private String customerId;
+
     @CreatedDate
     @Column(name = "created_at", nullable = false)
     private Date createdAt;

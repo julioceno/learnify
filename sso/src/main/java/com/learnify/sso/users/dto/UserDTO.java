@@ -14,10 +14,12 @@ public class UserDTO {
     private String id;
     private String name;
     private String email;
+    private String customerId;
 
     public UserDTO(User user) {
         id = user.getId();
         name = user.getName();
         email = user.getEmail();
+        customerId = user.getCustomerId();
     }
 }
