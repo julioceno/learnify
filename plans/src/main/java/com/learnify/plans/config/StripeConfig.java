@@ -1,0 +1,19 @@
+package com.learnify.plans.config;
+
+import com.stripe.StripeClient;
+import com.stripe.exception.StripeException;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+public class StripeConfig {
+    @Value("${stripe.api-key}")
+    private String apiKey;
+
+    @Bean
+    public StripeClient stripeClient() {
+        return new StripeClient(apiKey);
+    }
+}
+

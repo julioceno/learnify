@@ -28,6 +28,9 @@ public class Plan {
     private String description;
     private BigDecimal value;
 
+    @Column(name = "stripe_id")
+    private String stripeId;
+
     @OneToMany(mappedBy = "plan", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<Permission> permissions = new ArrayList<>();
 

@@ -27,7 +27,7 @@ public class HandleReturnPaymentService {
         log.info("Received message for user {}", messageQueueDTO.data().userId());
 
         if (messageQueueDTO.ok()) {
-            log.info("Payment is successfully, call subscription service");
+            log.info("Payment is successfully, call signature service");
             publishMessageQueueService.run(signatureUrl, messageQueueDTO);
             return;
         }

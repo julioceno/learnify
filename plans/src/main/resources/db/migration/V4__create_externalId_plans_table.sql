@@ -1,0 +1,1 @@
+ALTER TABLE plans ADD COLUMN stripe_id TEXT NOT NULL;

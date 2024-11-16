@@ -4,6 +4,11 @@ import com.learnify.plans.plans.domain.Permission;
 import com.learnify.plans.plans.domain.PermissionRepository;
 import com.learnify.plans.plans.domain.Plan;
 import com.learnify.plans.plans.domain.PlanRepository;
+import com.stripe.StripeClient;
+import com.stripe.exception.StripeException;
+import com.stripe.model.Product;
+import com.stripe.param.ProductCreateParams;
+import com.stripe.service.ProductService;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,12 +24,12 @@ import java.util.List;
 @Configuration
 @Profile("seed")
 @EnableJpaAuditing
+@AllArgsConstructor
 public class SeedConfig implements CommandLineRunner {
-    @Autowired
     private PlanRepository planRepository;
-
-    @Autowired
     private PermissionRepository permissionRepository;
+    private StripeClient stripeClient;
+
 
     @Override
     public void run(String... args) throws Exception {
@@ -71,12 +76,30 @@ public class SeedConfig implements CommandLineRunner {
             String description,
             BigDecimal value,
             PermissionToCreate[] permissions
-    ) {
+    ) throws StripeException {
+        if (planRepository.findByName(name).isPresent()) {
+            return;
+        }
+
+        ProductCreateParams.DefaultPriceData priceData = ProductCreateParams.DefaultPriceData.builder()
+                .setUnitAmount(value.multiply(BigDecimal.valueOf(100)).longValue())
+                .setCurrency("brl")
+                .build();
+
+        ProductCreateParams params = ProductCreateParams.builder()
+                .setName(name)
+                .setDescription(name)
+                .setDefaultPriceData(priceData)
+                .build();
+
+        Product stripeProductCreate = stripeClient.products().create(params);
+
         Plan planToCreate = new Plan(
                 null,
                 name,
                 description,
                 value,
+                stripeProductCreate.getId(),
                 null,
                 null,
                 null

@@ -17,7 +17,7 @@ aws:
         url:
           payment: https://localhost.localstack.cloud:4566/000000000000/payment
           signature: https://localhost.localstack.cloud:4566/000000000000/signature
-          cancel-subscription: https://localhost.localstack.cloud:4566/000000000000/cancel-subscription
+          cancel-signature: https://localhost.localstack.cloud:4566/000000000000/cancel-signature
         name:
           signature: signature
           return-signature: return-signature
