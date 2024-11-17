@@ -1,6 +1,7 @@
 package com.learnify.order.order;
 
 import com.learnify.order.common.Util;
+import com.learnify.order.common.dto.UserDTO;
 import com.learnify.order.order.dto.CreateOrderDTO;
 import com.learnify.order.order.service.OrderService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -23,8 +24,8 @@ public class OrderController {
 
     @PostMapping
     public ResponseEntity create(@RequestBody @Valid CreateOrderDTO createOrderDTO) {
-        String userId = Util.deserializeUser(request).getId();
-        orderService.create(userId, createOrderDTO);
+        UserDTO user = Util.deserializeUser(request);
+        orderService.create(user, createOrderDTO);
         return ResponseEntity.noContent().build();
     }
 }

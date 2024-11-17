@@ -1,14 +1,17 @@
 package com.learnify.order.order.service;
 
 import com.learnify.order.common.dto.MessageQueueDTO;
+import com.learnify.order.common.dto.UserDTO;
 import com.learnify.order.common.exception.BadRequestException;
 import com.learnify.order.common.service.IdempotencyService;
 import com.learnify.order.common.service.PublishMessageQueueService;
 import com.learnify.order.order.dto.CreateOrderDTO;
-import com.learnify.order.order.dto.CreatePaymentDTO;
+import com.learnify.order.order.dto.payment.CardDTO;
+import com.learnify.order.order.dto.payment.CustomerDTO;
+import com.learnify.order.order.dto.payment.PlanDTO;
+import com.learnify.order.order.dto.payment.SignatureDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -21,24 +24,27 @@ public class CreateOrderService {
     @Value("${aws.services.queue.url.payment}")
     private String paymentUrl;
 
-    @Autowired
-    private IdempotencyService idempotencyService;
+    private final IdempotencyService idempotencyService;
+    private final PublishMessageQueueService publishMessageQueueService;
+    private final GetPlanService getPlanService;
 
-    @Autowired
-    private PublishMessageQueueService publishMessageQueueService;
+    public CreateOrderService(IdempotencyService idempotencyService, PublishMessageQueueService publishMessageQueueService, GetPlanService getPlanService) {
+        this.idempotencyService = idempotencyService;
+        this.publishMessageQueueService = publishMessageQueueService;
+        this.getPlanService = getPlanService;
+    }
 
-    public void run(String userId,  CreateOrderDTO createOrderDTO) {
-        createIdempotencyId(userId);
+    public void run(UserDTO user, CreateOrderDTO createOrderDTO) {
+        createIdempotencyId(user.getId());
 
         try {
-            CreatePaymentDTO createPaymentDTO = new CreatePaymentDTO();
-            BeanUtils.copyProperties(createOrderDTO, createPaymentDTO);
-            createPaymentDTO.setUserId(userId);
-            MessageQueueDTO<CreatePaymentDTO> messageQueueDTO = new MessageQueueDTO<CreatePaymentDTO>(true, createPaymentDTO);
+            com.learnify.order.order.dto.plan.PlanDTO planDTO = getPlanService.run(createOrderDTO.planId());
+            SignatureDTO signatureDTO = createSignatureDTO(user, createOrderDTO, planDTO);
+            MessageQueueDTO<SignatureDTO> messageQueueDTO = new MessageQueueDTO<SignatureDTO>(true, signatureDTO);
 
             publishMessageQueueService.run(paymentUrl, messageQueueDTO);
         } catch (RuntimeException e) {
-            revokeIdempotencyId(userId);
+            revokeIdempotencyId(user.getId());
             throw e;
         }
     }
@@ -53,6 +59,24 @@ public class CreateOrderService {
         }
 
         log.info("Idempotency id created");
+    }
+
+    private SignatureDTO createSignatureDTO(UserDTO user, CreateOrderDTO createOrderDTO, com.learnify.order.order.dto.plan.PlanDTO planDTO) {
+        log.info("Creating signature dto...");
+        CardDTO card = new CardDTO();
+        BeanUtils.copyProperties(createOrderDTO, card);
+
+        CustomerDTO customer = new CustomerDTO(user.getId(), user.getCustomerId());
+        PlanDTO planData = new PlanDTO(
+                planDTO.getId(),
+                planDTO.getStripeId(),
+                planDTO.getValue()
+        );
+
+        SignatureDTO signatureDTO = new SignatureDTO(customer, card, planData);
+
+        log.info("Signature dto created");
+        return signatureDTO;
     }
 
     // TODO: testar esse fluxo
