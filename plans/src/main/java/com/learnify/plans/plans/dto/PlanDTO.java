@@ -19,6 +19,7 @@ public class PlanDTO {
     private String name;
     private String description;
     private BigDecimal value;
+    private String stripeId;
     private List<PermissionDTO> permissions;
 
     public PlanDTO(Plan plan) {
@@ -26,6 +27,7 @@ public class PlanDTO {
         name = plan.getName();
         description = plan.getDescription();
         value = plan.getValue();
+        stripeId = plan.getStripeId();
         permissions = plan.getPermissions().stream().map(PermissionDTO::new).toList();
     }
 }

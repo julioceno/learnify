@@ -50,11 +50,6 @@ public class SignatureService {
 
     private PaymentMethod createPaymentMethod(SignatureDTO signatureDTO) {
         try {
-            PaymentMethodCreateParams.BillingDetails billingDetails = PaymentMethodCreateParams.BillingDetails.builder()
-                    .setName(signatureDTO.customer().name())
-                    .setEmail(signatureDTO.customer().email())
-                    .build();
-
             Long expMonthParsed = Long.parseLong(signatureDTO.card().expMonth());
             PaymentMethodCreateParams.CardDetails cardDetails =  PaymentMethodCreateParams.CardDetails.builder()
                     .setCvc(signatureDTO.card().cvc())
@@ -65,7 +60,7 @@ public class SignatureService {
             PaymentMethodCreateParams params = PaymentMethodCreateParams.builder()
                     .setType(PaymentMethodCreateParams.Type.CARD)
                     .setCard(cardDetails)
-                    .setBillingDetails(billingDetails)
+                    .setCustomer(signatureDTO.customer().customerId())
                     .build();
 
             PaymentMethod paymentMethod = PaymentMethod.create(params);
@@ -100,7 +95,7 @@ public class SignatureService {
             SubscriptionCreateParams.Item.PriceData priceData = SubscriptionCreateParams.Item.PriceData.builder()
                     .setCurrency("BRL")
                     .setUnitAmount(valueInCents)
-                    .setProduct(signatureDTO.plan().planStripeId())
+                    .setProduct(signatureDTO.plan().stripeId())
                     .setRecurring(recurring)
                     .build();
 
