@@ -63,9 +63,12 @@ public class CreateOrderService {
 
     private SignatureDTO createSignatureDTO(UserDTO user, CreateOrderDTO createOrderDTO, com.learnify.order.order.dto.plan.PlanDTO planDTO) {
         log.info("Creating signature dto...");
-        CardDTO card = new CardDTO();
-        BeanUtils.copyProperties(createOrderDTO, card);
-
+        CardDTO card = new CardDTO(
+                createOrderDTO.cardNumber(),
+                createOrderDTO.expMonth(),
+                createOrderDTO.expYear(),
+                createOrderDTO.cvc()
+        );
         CustomerDTO customer = new CustomerDTO(user.getId(), user.getCustomerId());
         PlanDTO planData = new PlanDTO(
                 planDTO.getId(),

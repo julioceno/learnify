@@ -6,5 +6,4 @@ public record PlanDTO(
         String planId,
         String stripeId,
         BigDecimal value
-) {
-}
+) { }

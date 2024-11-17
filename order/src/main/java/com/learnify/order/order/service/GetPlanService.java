@@ -22,7 +22,7 @@ public class GetPlanService {
 
     public PlanDTO run(String planId) {
         log.info("Getting plan with id {}...", planId);
-        String url = plansUrl + "/plans";
+        String url = plansUrl + "/plans/" + planId;
         PlanDTO planDTO = restTemplate.getForObject(url, PlanDTO.class);
         log.info(format("Plan obtained, %s", planId));
 
