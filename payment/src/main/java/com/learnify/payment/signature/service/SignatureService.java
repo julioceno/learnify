@@ -7,15 +7,20 @@ import com.learnify.payment.common.service.PublishMessageQueueService;
 import com.learnify.payment.signature.dto.ReturnPaymentDTO;
 import com.learnify.payment.signature.dto.SignatureDTO;
 import com.stripe.StripeClient;
+import com.stripe.exception.StripeException;
 import com.stripe.model.Customer;
 import com.stripe.model.PaymentMethod;
 import com.stripe.model.Subscription;
 import com.stripe.param.CustomerUpdateParams;
+import com.stripe.param.PaymentMethodAttachParams;
 import com.stripe.param.PaymentMethodCreateParams;
 import com.stripe.param.SubscriptionCreateParams;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
 
 @Service
 @Slf4j
@@ -24,74 +29,34 @@ public class SignatureService {
     @Value("${aws.services.queue.url.return-payment}")
     private String returnPayment;
 
-    private final PublishMessageQueueService publishMessageQueueService;
-    private final StripeClient stripeClient;
-
-    public SignatureService(PublishMessageQueueService publishMessageQueueService, StripeClient stripeClient) {
-        this.publishMessageQueueService = publishMessageQueueService;
-        this.stripeClient = stripeClient;
-    }
+    @Autowired
+    private PublishMessageQueueService publishMessageQueueService;
 
     public void run(MessageQueueDTO<SignatureDTO> signatureDTO) {
         try {
-            PaymentMethod paymentMethod = createPaymentMethod(signatureDTO.data());
-            updateDefaultPaymentMethod(signatureDTO.data().customer().customerId(), paymentMethod);
+            Customer resource = Customer.retrieve(signatureDTO.data().customer().customerId());
+
+            resource.listPaymentMethods();
+
             createSubscription(signatureDTO.data());
 
-            ReturnPaymentDTO returnPaymentDTO = new ReturnPaymentDTO(signatureDTO.data().customer().userId(), signatureDTO.data().plan().planId());
-            MessageQueueDTO<ReturnPaymentDTO> messageQueueDTO = new MessageQueueDTO<ReturnPaymentDTO>(true, returnPaymentDTO);
-            publishMessageQueueService.run(returnPayment, messageQueueDTO);
+            publishSuccessMessage(signatureDTO.data());
         } catch (BadRequestException e) {
-            ReturnErrorDTO returnErrorDTO = new ReturnErrorDTO(e.getStatus(), e.getMessage());
-            MessageQueueDTO<ReturnErrorDTO> messageQueueDTO = new MessageQueueDTO<ReturnErrorDTO>(false, returnErrorDTO);
-            publishMessageQueueService.run(returnPayment, messageQueueDTO);
-        }
-    }
-
-    private PaymentMethod createPaymentMethod(SignatureDTO signatureDTO) {
-        try {
-            Long expMonthParsed = Long.parseLong(signatureDTO.card().expMonth());
-            PaymentMethodCreateParams.CardDetails cardDetails =  PaymentMethodCreateParams.CardDetails.builder()
-                    .setCvc(signatureDTO.card().cvc())
-                    .setExpMonth(expMonthParsed)
-                    .setNumber(signatureDTO.card().cardNumber())
-                    .build();
-
-            PaymentMethodCreateParams params = PaymentMethodCreateParams.builder()
-                    .setType(PaymentMethodCreateParams.Type.CARD)
-                    .setCard(cardDetails)
-                    .setCustomer(signatureDTO.customer().customerId())
-                    .build();
-
-            PaymentMethod paymentMethod = PaymentMethod.create(params);
-            return paymentMethod;
-        } catch (com.stripe.exception.StripeException e) {
-            throw new BadRequestException("Não foi possível processar o meio de pagamento");
-        }
-    }
-
-    private void updateDefaultPaymentMethod(String customerId, PaymentMethod paymentMethod) {
-        try {
-            Customer resource = Customer.retrieve(customerId);
-            CustomerUpdateParams updateParams = CustomerUpdateParams.builder()
-                    .setInvoiceSettings(CustomerUpdateParams.InvoiceSettings.builder()
-                            .setDefaultPaymentMethod(paymentMethod.getId())
-                            .build())
-                    .build();
-
-            resource.update(updateParams);
-        } catch (com.stripe.exception.StripeException e) {
-            throw new BadRequestException("Não foi possível setar o meio de pagamento por padrão do cliente");
+            publishErrorMessage(e);
+        } catch (StripeException e) {
+            throw new RuntimeException(e);
         }
     }
 
     private void createSubscription(SignatureDTO signatureDTO) {
         try {
+            log.info("Creating subscription in user {}. Prepare recurring data...", signatureDTO.customer().userId());
             SubscriptionCreateParams.Item.PriceData.Recurring recurring = SubscriptionCreateParams.Item.PriceData.Recurring.builder()
                     .setInterval(SubscriptionCreateParams.Item.PriceData.Recurring.Interval.MONTH)
                     .build();
 
-            long valueInCents = signatureDTO.plan().value() * 100;
+            log.info("Prepare price data params...");
+            long valueInCents = signatureDTO.plan().value().multiply(BigDecimal.valueOf(100)).longValue();
             SubscriptionCreateParams.Item.PriceData priceData = SubscriptionCreateParams.Item.PriceData.builder()
                     .setCurrency("BRL")
                     .setUnitAmount(valueInCents)
@@ -99,18 +64,37 @@ public class SignatureService {
                     .setRecurring(recurring)
                     .build();
 
+            log.info("Prepare item params...");
             SubscriptionCreateParams.Item item = SubscriptionCreateParams.Item.builder()
                     .setPriceData(priceData)
                     .build();
 
+            log.info("Prepare subscription params...");
             SubscriptionCreateParams subscriptionParams = SubscriptionCreateParams.builder()
                     .setCustomer(signatureDTO.customer().customerId())
                     .addItem(item)
                     .build();
 
+            log.info("Creating subscription...");
             Subscription.create(subscriptionParams);
+            log.info("Subscription created");
         } catch (com.stripe.exception.StripeException e) {
+            e.printStackTrace();
             throw new BadRequestException("Não foi possível criar a inscrição do usuário para esse plano");
         }
+    }
+
+    private void publishSuccessMessage(SignatureDTO signatureDTO) {
+        log.info("Publish success message...");
+        ReturnPaymentDTO returnPaymentDTO = new ReturnPaymentDTO(signatureDTO.customer().userId(), signatureDTO.plan().planId());
+        MessageQueueDTO<ReturnPaymentDTO> messageQueueDTO = new MessageQueueDTO<ReturnPaymentDTO>(true, returnPaymentDTO);
+        publishMessageQueueService.run(returnPayment, messageQueueDTO);
+    }
+
+    private void publishErrorMessage(BadRequestException error) {
+        log.error("Publish error message...", error);
+        ReturnErrorDTO returnErrorDTO = new ReturnErrorDTO(error.getStatus(), error.getMessage());
+        MessageQueueDTO<ReturnErrorDTO> messageQueueDTO = new MessageQueueDTO<ReturnErrorDTO>(false, returnErrorDTO);
+        publishMessageQueueService.run(returnPayment, messageQueueDTO);
     }
 }
