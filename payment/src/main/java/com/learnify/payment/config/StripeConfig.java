@@ -17,9 +17,4 @@ public class StripeConfig {
         Stripe.apiKey = apiKey;
         return new StripeClient(apiKey);
     }
-
-    @Bean
-    public PaymentMethod paymentMethod() {
-        return new PaymentMethod();
-    }
 }

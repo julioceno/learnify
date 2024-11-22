@@ -37,7 +37,6 @@ public class SignatureService {
             Customer resource = Customer.retrieve(signatureDTO.data().customer().customerId());
 
             resource.listPaymentMethods();
-
             createSubscription(signatureDTO.data());
 
             publishSuccessMessage(signatureDTO.data());
@@ -79,7 +78,6 @@ public class SignatureService {
             Subscription.create(subscriptionParams);
             log.info("Subscription created");
         } catch (com.stripe.exception.StripeException e) {
-            e.printStackTrace();
             throw new BadRequestException("Não foi possível criar a inscrição do usuário para esse plano");
         }
     }
