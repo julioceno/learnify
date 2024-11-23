@@ -3,6 +3,7 @@ package com.learnify.order.order.service;
 import com.learnify.order.common.dto.MessageQueueDTO;
 import com.learnify.order.common.dto.UserDTO;
 import com.learnify.order.common.exception.BadRequestException;
+import com.learnify.order.common.service.DataDTO;
 import com.learnify.order.common.service.IdempotencyService;
 import com.learnify.order.common.service.PublishMessageQueueService;
 import com.learnify.order.order.dto.CreateOrderDTO;
@@ -33,7 +34,7 @@ public class CreateOrderService {
     }
 
     public void run(UserDTO user, CreateOrderDTO createOrderDTO) {
-        createIdempotencyId(user.getId());
+        createIdempotencyId(user.getId(), createOrderDTO);
 
         try {
             com.learnify.order.order.dto.plan.PlanDTO planDTO = getPlanService.run(createOrderDTO.planId());
@@ -47,9 +48,10 @@ public class CreateOrderService {
         }
     }
 
-    private void createIdempotencyId(String key) {
+    private void createIdempotencyId(String key, CreateOrderDTO createOrderDTO) {
         log.info("Generate idempotency id...");
-        boolean isSuccess = idempotencyService.create(key, idempotencyTime);
+        final DataDTO dataDTO = new DataDTO(createOrderDTO.planId());
+        boolean isSuccess = idempotencyService.create(key, dataDTO, idempotencyTime);
 
         if (!isSuccess) {
             log.error("Ocurred error when try generate idempotency id");
