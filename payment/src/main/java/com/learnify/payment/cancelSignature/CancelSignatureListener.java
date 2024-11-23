@@ -1,5 +1,6 @@
 package com.learnify.payment.cancelSignature;
 
+import com.learnify.payment.cancelSignature.dto.CancelSignatureDTO;
 import com.learnify.payment.cancelSignature.services.CancelSignatureService;
 import com.learnify.payment.common.dto.MessageQueueDTO;
 import com.learnify.payment.common.dto.UserQueueDTO;
@@ -13,7 +14,7 @@ public class CancelSignatureListener {
     private CancelSignatureService cancelSignatureService;
 
     @SqsListener("${aws.services.queue.name.cancel-signature}")
-    public void receiveMessages(MessageQueueDTO<UserQueueDTO> userQueueDTO) {
-        cancelSignatureService.run(userQueueDTO);
+    public void receiveMessages(MessageQueueDTO<CancelSignatureDTO> dto) {
+        cancelSignatureService.run(dto);
     }
 }

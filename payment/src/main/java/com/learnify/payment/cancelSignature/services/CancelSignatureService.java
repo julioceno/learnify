@@ -1,8 +1,8 @@
 package com.learnify.payment.cancelSignature.services;
 
+import com.learnify.payment.cancelSignature.dto.CancelSignatureDTO;
 import com.learnify.payment.common.dto.MessageQueueDTO;
 import com.learnify.payment.common.dto.ReturnErrorDTO;
-import com.learnify.payment.common.dto.UserQueueDTO;
 import com.learnify.payment.common.exception.BadRequestException;
 import com.learnify.payment.common.service.PublishMessageQueueService;
 import com.learnify.payment.signature.dto.ReturnPaymentDTO;
@@ -18,15 +18,15 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class CancelSignatureService {
     @Value("aws.services.queue.url-return-cancel-signature")
-    String returnCancelSignature;
+    private String returnCancelSignature;
 
     @Autowired
     private PublishMessageQueueService publishMessageQueueService;
 
-    public void run(MessageQueueDTO<UserQueueDTO> userQueueDTO)  {
+    public void run(MessageQueueDTO<CancelSignatureDTO> dto)  {
         try {
-            cancelSubscription(userQueueDTO.data().subscriptionId());
-            publishSuccessMessage(userQueueDTO.data());
+            cancelSubscription(dto.data().subscriptionId());
+            publishSuccessMessage(dto.data());
         } catch (BadRequestException e) {
             publishErrorMessage(e);
         }
@@ -48,9 +48,9 @@ public class CancelSignatureService {
         }
     }
 
-    private void publishSuccessMessage(UserQueueDTO userQueueDTO) {
+    private void publishSuccessMessage(CancelSignatureDTO dto) {
         log.info("Publish success message...");
-        ReturnPaymentDTO returnPaymentDTO = new ReturnPaymentDTO(userQueueDTO.userId(), userQueueDTO.subscriptionId());
+        ReturnPaymentDTO returnPaymentDTO = new ReturnPaymentDTO(dto.userId(), dto.planId(), dto.subscriptionId());
         MessageQueueDTO<ReturnPaymentDTO> messageQueueDTO = new MessageQueueDTO<ReturnPaymentDTO>(true, returnPaymentDTO);
         publishMessageQueueService.run(returnCancelSignature, messageQueueDTO);
     }

@@ -8,6 +8,7 @@ import com.learnify.plans.plans.domain.PlanRepository;
 import com.learnify.plans.signatures.domain.Signature;
 import com.learnify.plans.signatures.domain.SignaturePermission;
 import com.learnify.plans.signatures.domain.SignatureRepository;
+import com.learnify.plans.signatures.dto.ReturnSignature;
 import com.learnify.plans.signatures.dto.SignatureDTO;
 import com.learnify.plans.signatures.dto.UserId;
 import lombok.extern.slf4j.Slf4j;
@@ -40,9 +41,13 @@ public class CreateSignatureService {
             Plan plan = getPlan(signatureDTO.data().planId());
             createSignature(signatureDTO, plan);
 
-            sendMessage(true, signatureDTO.data().userId());
+            log.info("Return success...");
+            sendMessage(true, signatureDTO.data());
         } catch (RuntimeException e) {
-            sendMessage(false, signatureDTO.data().userId());
+            log.error("Return error...", e);
+            sendMessage(false, signatureDTO.data());
+        } finally {
+            log.info("Message sent");
         }
     }
 
@@ -96,8 +101,8 @@ public class CreateSignatureService {
         return signaturesPermission;
     }
 
-    private void sendMessage(Boolean ok, String userId) {
-        MessageQueueDTO<UserId> message = new MessageQueueDTO<UserId>(ok, new UserId(userId));
+    private void sendMessage(Boolean ok, SignatureDTO signatureDTO) {
+        MessageQueueDTO<ReturnSignature> message = new MessageQueueDTO<ReturnSignature>(ok, new ReturnSignature(signatureDTO.userId(), signatureDTO.planId(), signatureDTO.subscriptionId()));
         publishMessageQueueService.run(returnSignature, message);
     }
 }

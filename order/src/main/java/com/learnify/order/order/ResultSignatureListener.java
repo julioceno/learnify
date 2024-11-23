@@ -3,6 +3,7 @@ package com.learnify.order.order;
 import com.learnify.order.common.dto.MessageQueueDTO;
 import com.learnify.order.common.dto.UserQueueDTO;
 import com.learnify.order.order.dto.ReturnPaymentDTO;
+import com.learnify.order.order.dto.ReturnSignatureDTO;
 import com.learnify.order.order.service.HandleReturnPaymentService;
 import com.learnify.order.order.service.HandleReturnSignatureService;
 import io.awspring.cloud.sqs.annotation.SqsListener;
@@ -17,8 +18,8 @@ public class ResultSignatureListener {
     private final HandleReturnPaymentService handleReturnPaymentService;
 
     @SqsListener("${aws.services.queue.name.return-signature}")
-    public void returnSignature(MessageQueueDTO<UserQueueDTO> messageQueueDTO) {
-        handleResultSignatureService.run(messageQueueDTO);
+    public void returnSignature(MessageQueueDTO<ReturnSignatureDTO> dto) {
+        handleResultSignatureService.run(dto);
     }
 
     @SqsListener("${aws.services.queue.name.return-payment}")
