@@ -13,4 +13,5 @@ import lombok.Setter;
 @Getter
 public class DataDTO {
     private String planId;
+    private String subscriptionId;
 }

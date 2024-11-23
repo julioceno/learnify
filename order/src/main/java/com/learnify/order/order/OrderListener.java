@@ -10,10 +10,9 @@ import io.awspring.cloud.sqs.annotation.SqsListener;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
-// TODO: alterar o nome da classe
 @Component
 @AllArgsConstructor
-public class ResultSignatureListener {
+public class OrderListener {
     private final HandleReturnSignatureService handleResultSignatureService;
     private final HandleReturnPaymentService handleReturnPaymentService;
     private final HandleReturnCancelSignatureService handleReturnCancelSignatureService;

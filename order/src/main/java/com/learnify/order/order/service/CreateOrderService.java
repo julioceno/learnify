@@ -38,7 +38,7 @@ public class CreateOrderService {
 
         try {
             com.learnify.order.order.dto.plan.PlanDTO planDTO = getPlanService.run(createOrderDTO.planId());
-            SignatureDTO signatureDTO = createSignatureDTO(user, createOrderDTO, planDTO);
+            SignatureDTO signatureDTO = createSignatureDTO(user, planDTO);
             MessageQueueDTO<SignatureDTO> messageQueueDTO = new MessageQueueDTO<SignatureDTO>(true, signatureDTO);
 
             publishMessageQueueService.run(paymentUrl, messageQueueDTO);
@@ -50,7 +50,7 @@ public class CreateOrderService {
 
     private void createIdempotencyId(String key, CreateOrderDTO createOrderDTO) {
         log.info("Generate idempotency id...");
-        final DataDTO dataDTO = new DataDTO(createOrderDTO.planId());
+        final DataDTO dataDTO = new DataDTO(createOrderDTO.planId(), null);
         boolean isSuccess = idempotencyService.create(key, dataDTO, idempotencyTime);
 
         if (!isSuccess) {
@@ -61,7 +61,7 @@ public class CreateOrderService {
         log.info("Idempotency id created");
     }
 
-    private SignatureDTO createSignatureDTO(UserDTO user, CreateOrderDTO createOrderDTO, com.learnify.order.order.dto.plan.PlanDTO planDTO) {
+    private SignatureDTO createSignatureDTO(UserDTO user, com.learnify.order.order.dto.plan.PlanDTO planDTO) {
         log.info("Creating signature dto...");
         CustomerDTO customer = new CustomerDTO(user.getId(), user.getCustomerId());
         PlanDTO planData = new PlanDTO(

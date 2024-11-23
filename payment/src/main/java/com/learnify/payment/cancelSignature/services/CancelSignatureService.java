@@ -44,7 +44,7 @@ public class CancelSignatureService {
             log.info("Cancel concluded");
         } catch (StripeException e) {
             log.error("Occurred error when try cancel subscription");
-            throw new BadRequestException("Não foi a assinatura");
+            throw new BadRequestException("Não foi possível cancelar a assinatura");
         }
     }
 
