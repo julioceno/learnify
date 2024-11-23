@@ -17,7 +17,7 @@ import org.springframework.stereotype.Service;
 @Service
 @Slf4j
 public class CancelSignatureService {
-    @Value("aws.services.queue.url-return-cancel-signature")
+    @Value("${aws.services.queue.url.return-cancel-signature}")
     private String returnCancelSignature;
 
     @Autowired

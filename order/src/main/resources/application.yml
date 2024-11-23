@@ -22,11 +22,12 @@ aws:
           signature: signature
           return-signature: return-signature
           return-payment: return-payment
+          return-cancel-signature: return-cancel-signature
 
 api:
   order:
     idempotency:
-      time: 1
+      time: 600
   plans:
     url: http://localhost:8082
 

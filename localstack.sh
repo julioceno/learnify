@@ -22,3 +22,4 @@ create_queue "cancel-signature"
 
 create_queue "signature"
 create_queue "return-signature"
+create_queue "return-cancel-signature"
