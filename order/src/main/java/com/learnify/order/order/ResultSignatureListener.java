@@ -1,7 +1,6 @@
 package com.learnify.order.order;
 
 import com.learnify.order.common.dto.MessageQueueDTO;
-import com.learnify.order.common.dto.UserQueueDTO;
 import com.learnify.order.order.dto.ReturnPaymentDTO;
 import com.learnify.order.order.dto.ReturnSignatureDTO;
 import com.learnify.order.order.service.HandleReturnPaymentService;

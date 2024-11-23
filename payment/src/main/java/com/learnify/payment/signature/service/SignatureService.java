@@ -17,7 +17,6 @@ import java.math.BigDecimal;
 
 @Service
 @Slf4j
-// TODO: adicionar logs
 public class SignatureService {
     @Value("${aws.services.queue.url.return-payment}")
     private String returnPayment;

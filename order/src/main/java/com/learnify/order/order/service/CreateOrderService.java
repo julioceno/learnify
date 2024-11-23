@@ -6,12 +6,10 @@ import com.learnify.order.common.exception.BadRequestException;
 import com.learnify.order.common.service.IdempotencyService;
 import com.learnify.order.common.service.PublishMessageQueueService;
 import com.learnify.order.order.dto.CreateOrderDTO;
-import com.learnify.order.order.dto.payment.CardDTO;
 import com.learnify.order.order.dto.payment.CustomerDTO;
 import com.learnify.order.order.dto.payment.PlanDTO;
 import com.learnify.order.order.dto.payment.SignatureDTO;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -63,12 +61,6 @@ public class CreateOrderService {
 
     private SignatureDTO createSignatureDTO(UserDTO user, CreateOrderDTO createOrderDTO, com.learnify.order.order.dto.plan.PlanDTO planDTO) {
         log.info("Creating signature dto...");
-        CardDTO card = new CardDTO(
-                createOrderDTO.cardNumber(),
-                createOrderDTO.expMonth(),
-                createOrderDTO.expYear(),
-                createOrderDTO.cvc()
-        );
         CustomerDTO customer = new CustomerDTO(user.getId(), user.getCustomerId());
         PlanDTO planData = new PlanDTO(
                 planDTO.getId(),
@@ -76,7 +68,7 @@ public class CreateOrderService {
                 planDTO.getValue()
         );
 
-        SignatureDTO signatureDTO = new SignatureDTO(customer, card, planData);
+        SignatureDTO signatureDTO = new SignatureDTO(customer, planData);
 
         log.info("Signature dto created");
         return signatureDTO;
