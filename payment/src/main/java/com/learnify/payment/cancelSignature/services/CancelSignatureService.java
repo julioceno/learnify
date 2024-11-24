@@ -50,7 +50,7 @@ public class CancelSignatureService {
 
     private void publishSuccessMessage(CancelSignatureDTO dto) {
         log.info("Publish success message...");
-        ReturnPaymentDTO returnPaymentDTO = new ReturnPaymentDTO(dto.userId(), dto.planId(), dto.subscriptionId());
+        ReturnPaymentDTO returnPaymentDTO = new ReturnPaymentDTO(dto.userId(), dto.subscriptionId());
         MessageQueueDTO<ReturnPaymentDTO> messageQueueDTO = new MessageQueueDTO<ReturnPaymentDTO>(true, returnPaymentDTO);
         publishMessageQueueService.run(returnCancelSignature, messageQueueDTO);
     }

@@ -10,7 +10,6 @@ import com.learnify.plans.signatures.domain.SignaturePermission;
 import com.learnify.plans.signatures.domain.SignatureRepository;
 import com.learnify.plans.signatures.dto.ReturnSignature;
 import com.learnify.plans.signatures.dto.SignatureDTO;
-import com.learnify.plans.signatures.dto.UserId;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,7 +20,7 @@ import java.util.Optional;
 
 @Service
 @Slf4j
-public class CreateSignatureService {
+public class HandleCreateSignatureService {
     @Value("${aws.services.queue.url.return-signature}")
     private String returnSignature;
 
@@ -29,7 +28,7 @@ public class CreateSignatureService {
     private final PlanRepository planRepository;
     private final PublishMessageQueueService publishMessageQueueService;
 
-    public CreateSignatureService(SignatureRepository signatureRepository, PlanRepository planRepository, PublishMessageQueueService publishMessageQueueService) {
+    public HandleCreateSignatureService(SignatureRepository signatureRepository, PlanRepository planRepository, PublishMessageQueueService publishMessageQueueService) {
         this.signatureRepository = signatureRepository;
         this.planRepository = planRepository;
         this.publishMessageQueueService = publishMessageQueueService;
@@ -102,7 +101,7 @@ public class CreateSignatureService {
     }
 
     private void sendMessage(Boolean ok, SignatureDTO signatureDTO) {
-        MessageQueueDTO<ReturnSignature> message = new MessageQueueDTO<ReturnSignature>(ok, new ReturnSignature(signatureDTO.userId(), signatureDTO.planId(), signatureDTO.subscriptionId()));
+        MessageQueueDTO<ReturnSignature> message = new MessageQueueDTO<ReturnSignature>(ok, new ReturnSignature(signatureDTO.userId(), signatureDTO.planId()));
         publishMessageQueueService.run(returnSignature, message);
     }
 }

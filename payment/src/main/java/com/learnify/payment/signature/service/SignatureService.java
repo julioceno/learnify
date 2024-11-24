@@ -73,7 +73,6 @@ public class SignatureService {
         log.info("Publish success message...");
         ReturnPaymentDTO returnPaymentDTO = new ReturnPaymentDTO(
                 signatureDTO.customer().userId(),
-                signatureDTO.plan().planId(),
                 subscriptionId
         );
         MessageQueueDTO<ReturnPaymentDTO> messageQueueDTO = new MessageQueueDTO<ReturnPaymentDTO>(true, returnPaymentDTO);

@@ -1,4 +1,4 @@
 package com.learnify.order.order.dto;
 
-public record ReturnSignatureDTO(String userId, String planId, String subscriptionId) {
+public record ReturnSignatureDTO(String userId, String planId) {
 }

@@ -1,4 +1,4 @@
-package com.learnify.payment.cancelSignature.dto;
+package com.learnify.order.order.dto;
 
 public record CancelSignatureDTO(String userId, String subscriptionId) {
 }
