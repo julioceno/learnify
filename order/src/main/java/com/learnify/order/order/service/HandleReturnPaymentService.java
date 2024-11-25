@@ -4,11 +4,13 @@ import com.learnify.order.common.dto.MessageQueueDTO;
 import com.learnify.order.common.service.DataDTO;
 import com.learnify.order.common.service.IdempotencyService;
 import com.learnify.order.common.service.PublishMessageQueueService;
+import com.learnify.order.order.dto.CreateSubscriptionDTO;
 import com.learnify.order.order.dto.ReturnPaymentDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+// TODO: revisar logs
 @Service
 @Slf4j
 public class HandleReturnPaymentService {
@@ -27,13 +29,12 @@ public class HandleReturnPaymentService {
     }
 
     public void run(MessageQueueDTO<ReturnPaymentDTO> dto) {
-        log.info("Received message for user {}", dto.data().userId());
+        String userId = dto.data().userId();
+        log.info("Received message for user {}", userId);
 
         if (dto.ok()) {
-            updateIdempotency(dto.data());
-
-            log.info("Payment is successfully, call signature service");
-            publishMessageQueueService.run(signatureUrl, dto);
+            DataDTO dataDTO = updateIdempotency(dto.data());
+            publishMessageSignature(userId, dataDTO);
             return;
         }
 
@@ -41,7 +42,7 @@ public class HandleReturnPaymentService {
         idempotencyService.remove(dto.data().userId());
     }
 
-    private void updateIdempotency(ReturnPaymentDTO dto) {
+    private DataDTO updateIdempotency(ReturnPaymentDTO dto) {
         log.info("Getting idempotence value by key {}...", dto.userId());
         DataDTO dataDTO = idempotencyService.get(dto.userId());
 
@@ -49,5 +50,14 @@ public class HandleReturnPaymentService {
         dataDTO.setSubscriptionId(dto.subscriptionId());
         idempotencyService.update(dto.userId(), dataDTO, idempotencyTime);
         log.info("Update info");
+        return dataDTO;
+    }
+
+    private void publishMessageSignature(String userId, DataDTO dataDTO) {
+        log.info("Payment is successfully, call signature service");
+        CreateSubscriptionDTO createSubscriptionDTO = new CreateSubscriptionDTO(userId, dataDTO.getPlanId());
+        MessageQueueDTO<CreateSubscriptionDTO> messageQueueDTO = new MessageQueueDTO<CreateSubscriptionDTO>(true, createSubscriptionDTO);
+
+        publishMessageQueueService.run(signatureUrl, messageQueueDTO);
     }
 }
