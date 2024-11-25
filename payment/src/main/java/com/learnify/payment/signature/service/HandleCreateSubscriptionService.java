@@ -17,7 +17,7 @@ import java.math.BigDecimal;
 
 @Service
 @Slf4j
-public class SignatureService {
+public class HandleCreateSubscriptionService {
     @Value("${aws.services.queue.url.return-payment}")
     private String returnPayment;
 
