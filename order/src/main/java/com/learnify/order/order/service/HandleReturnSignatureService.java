@@ -32,8 +32,8 @@ public class HandleReturnSignatureService {
             removeIdempotenceKey(userId);
             return;
         }
-        log.info("Signature is fail, call payment ms for reset operation");
 
+        log.info("Signature is fail, call payment ms for reset operation");
         DataDTO dataDTO = getData(dto.data().userId());
         publishMessageToCancelMessage(dto.data().userId(), dataDTO);
     }
