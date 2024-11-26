@@ -43,8 +43,18 @@ services:
       #- ./bootstrap:/etc/localstack/init/ready.d
       - localstack-data:/data/lib/localstack
       - /var/run/docker.sock:/var/run/docker.sock
+  mongodb:
+    image: mongo:latest
+    restart: unless-stopped
+    volumes:
+      - mongodb-data:/data/db
+    environment:
+      MONGO_INITDB_DATABASE: order
+    ports:
+      - 27017:27017
 volumes:
   postgres_sso_data:
   postgres_plans_data:
   redis_data:
   localstack-data:
+  mongodb-data:

@@ -1,6 +1,9 @@
 spring:
   application:
     name: order
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/order
 
 redis:
   host: localhost

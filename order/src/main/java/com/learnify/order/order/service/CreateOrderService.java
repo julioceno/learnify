@@ -6,6 +6,9 @@ import com.learnify.order.common.exception.BadRequestException;
 import com.learnify.order.common.service.DataDTO;
 import com.learnify.order.common.service.IdempotencyService;
 import com.learnify.order.common.service.PublishMessageQueueService;
+import com.learnify.order.order.domain.Order;
+import com.learnify.order.order.domain.OrderRepository;
+import com.learnify.order.order.domain.StatusOrder;
 import com.learnify.order.order.dto.CreateOrderDTO;
 import com.learnify.order.order.dto.payment.CustomerDTO;
 import com.learnify.order.order.dto.payment.PlanDTO;
@@ -26,11 +29,13 @@ public class CreateOrderService {
     private final IdempotencyService idempotencyService;
     private final PublishMessageQueueService publishMessageQueueService;
     private final GetPlanService getPlanService;
+    private final OrderRepository orderRepository;
 
-    public CreateOrderService(IdempotencyService idempotencyService, PublishMessageQueueService publishMessageQueueService, GetPlanService getPlanService) {
+    public CreateOrderService(IdempotencyService idempotencyService, PublishMessageQueueService publishMessageQueueService, GetPlanService getPlanService, OrderRepository orderRepository) {
         this.idempotencyService = idempotencyService;
         this.publishMessageQueueService = publishMessageQueueService;
         this.getPlanService = getPlanService;
+        this.orderRepository = orderRepository;
     }
 
     public void run(UserDTO user, CreateOrderDTO createOrderDTO) {
@@ -39,6 +44,7 @@ public class CreateOrderService {
         try {
             com.learnify.order.order.dto.plan.PlanDTO planDTO = getPlanService.run(createOrderDTO.planId());
             SignatureDTO signatureDTO = createSignatureDTO(user, planDTO);
+            createOrder(planDTO.getId());
             MessageQueueDTO<SignatureDTO> messageQueueDTO = new MessageQueueDTO<SignatureDTO>(true, signatureDTO);
 
             publishMessageQueueService.run(paymentUrl, messageQueueDTO);
@@ -74,6 +80,16 @@ public class CreateOrderService {
 
         log.info("Signature dto created");
         return signatureDTO;
+    }
+
+    private void createOrder(String planId) {
+        log.info("Creating order in database...");
+        Order order = new Order();
+        order.setStatus(StatusOrder.PROCESSING);
+        order.setPlanId(planId);
+
+        orderRepository.insert(order);
+        log.info("Order created");
     }
 
     // TODO: testar esse fluxo
