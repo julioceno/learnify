@@ -1,8 +1,8 @@
 package com.learnify.payment.signature.dto;
 
 public record SignatureDTO(
+    String orderId,
     CustomerDTO customer,
-    CardDTO card,
     PlanDTO plan
 ) {}
 

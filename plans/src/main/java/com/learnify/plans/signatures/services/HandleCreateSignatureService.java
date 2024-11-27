@@ -101,7 +101,7 @@ public class HandleCreateSignatureService {
     }
 
     private void sendMessage(Boolean ok, SignatureDTO signatureDTO) {
-        MessageQueueDTO<ReturnSignature> message = new MessageQueueDTO<ReturnSignature>(ok, new ReturnSignature(signatureDTO.userId(), signatureDTO.planId()));
+        MessageQueueDTO<ReturnSignature> message = new MessageQueueDTO<ReturnSignature>(ok, new ReturnSignature(signatureDTO.orderId(), signatureDTO.userId(), signatureDTO.planId()));
         publishMessageQueueService.run(returnSignature, message);
     }
 }

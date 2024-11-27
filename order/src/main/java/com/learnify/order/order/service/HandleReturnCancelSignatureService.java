@@ -22,6 +22,7 @@ public class HandleReturnCancelSignatureService {
     public void run(MessageQueueDTO<ReturnPaymentDTO> messageQueueDTO) {
         log.info("Received message for user {}", messageQueueDTO.data().userId());
         // TODO: adicionar no banco uma mensagem que o cancelamento da assinatura foi mal sucedido e fara mais tentativas
+        // TODO: fazer com que a fila tenha um maximo de tentativas
 
         // TODO: fazer alguma tratativa para mostrar que o pagamento não deu certo
         idempotencyService.remove(messageQueueDTO.data().userId());

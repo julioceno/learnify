@@ -1,4 +1,4 @@
 package com.learnify.order.order.dto;
 
-public record CancelSignatureDTO(String userId, String subscriptionId) {
+public record CancelSignatureDTO(String orderId, String userId, String subscriptionId) {
 }

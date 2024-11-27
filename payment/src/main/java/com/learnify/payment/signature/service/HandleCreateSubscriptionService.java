@@ -72,6 +72,7 @@ public class HandleCreateSubscriptionService {
     private void publishSuccessMessage(SignatureDTO signatureDTO, String subscriptionId) {
         log.info("Publish success message...");
         ReturnPaymentDTO returnPaymentDTO = new ReturnPaymentDTO(
+                signatureDTO.orderId(),
                 signatureDTO.customer().userId(),
                 subscriptionId
         );

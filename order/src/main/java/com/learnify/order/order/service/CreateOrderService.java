@@ -43,13 +43,15 @@ public class CreateOrderService {
 
         try {
             com.learnify.order.order.dto.plan.PlanDTO planDTO = getPlanService.run(createOrderDTO.planId());
-            SignatureDTO signatureDTO = createSignatureDTO(user, planDTO);
-            createOrder(planDTO.getId());
+            Order order = createOrder(planDTO.getId());
+
+            SignatureDTO signatureDTO = createSignatureDTO(order.getId(), user, planDTO);
             MessageQueueDTO<SignatureDTO> messageQueueDTO = new MessageQueueDTO<SignatureDTO>(true, signatureDTO);
 
             publishMessageQueueService.run(paymentUrl, messageQueueDTO);
         } catch (RuntimeException e) {
             revokeIdempotencyId(user.getId());
+            // TODO: salvar mensagem de erro
             throw e;
         }
     }
@@ -67,7 +69,7 @@ public class CreateOrderService {
         log.info("Idempotency id created");
     }
 
-    private SignatureDTO createSignatureDTO(UserDTO user, com.learnify.order.order.dto.plan.PlanDTO planDTO) {
+    private SignatureDTO createSignatureDTO(String orderId, UserDTO user, com.learnify.order.order.dto.plan.PlanDTO planDTO) {
         log.info("Creating signature dto...");
         CustomerDTO customer = new CustomerDTO(user.getId(), user.getCustomerId());
         PlanDTO planData = new PlanDTO(
@@ -76,20 +78,21 @@ public class CreateOrderService {
                 planDTO.getValue()
         );
 
-        SignatureDTO signatureDTO = new SignatureDTO(customer, planData);
+        SignatureDTO signatureDTO = new SignatureDTO(orderId, customer, planData);
 
         log.info("Signature dto created");
         return signatureDTO;
     }
 
-    private void createOrder(String planId) {
+    private Order createOrder(String planId) {
         log.info("Creating order in database...");
         Order order = new Order();
         order.setStatus(StatusOrder.PROCESSING);
         order.setPlanId(planId);
 
-        orderRepository.insert(order);
+        Order orderCreated = orderRepository.insert(order);
         log.info("Order created");
+        return orderCreated;
     }
 
     // TODO: testar esse fluxo

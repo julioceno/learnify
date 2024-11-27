@@ -1,4 +1,4 @@
 package com.learnify.plans.signatures.dto;
 
-public record ReturnSignature(String userId, String planId) {
+public record ReturnSignature(String orderId, String userId, String planId) {
 }

@@ -4,6 +4,7 @@ import com.learnify.order.common.dto.MessageQueueDTO;
 import com.learnify.order.common.service.DataDTO;
 import com.learnify.order.common.service.IdempotencyService;
 import com.learnify.order.common.service.PublishMessageQueueService;
+import com.learnify.order.order.domain.OrderRepository;
 import com.learnify.order.order.dto.CancelSignatureDTO;
 import com.learnify.order.order.dto.ReturnSignatureDTO;
 import lombok.extern.slf4j.Slf4j;
@@ -18,10 +19,12 @@ public class HandleReturnSignatureService {
 
     private final PublishMessageQueueService publishMessageQueueService;
     private final IdempotencyService idempotencyService;
+    private final OrderRepository orderRepository;
 
-    public HandleReturnSignatureService(PublishMessageQueueService publishMessageQueueService, IdempotencyService idempotencyService) {
+    public HandleReturnSignatureService(PublishMessageQueueService publishMessageQueueService, IdempotencyService idempotencyService, OrderRepository orderRepository) {
         this.publishMessageQueueService = publishMessageQueueService;
         this.idempotencyService = idempotencyService;
+        this.orderRepository = orderRepository;
     }
 
     public void run(MessageQueueDTO<ReturnSignatureDTO> dto) {
@@ -35,7 +38,7 @@ public class HandleReturnSignatureService {
 
         log.info("Signature is fail, call payment ms for reset operation");
         DataDTO dataDTO = getData(dto.data().userId());
-        publishMessageToCancelMessage(dto.data().userId(), dataDTO);
+        publishMessageToCancelMessage(dto.data(), dataDTO);
     }
 
     private void removeIdempotenceKey(String userId) {
@@ -53,9 +56,9 @@ public class HandleReturnSignatureService {
         return dataDTO;
     }
 
-    private void publishMessageToCancelMessage(String userId, DataDTO dataDTO) {
+    private void publishMessageToCancelMessage(ReturnSignatureDTO dto, DataDTO dataDTO) {
         log.info("Creating dto to sending...");
-        CancelSignatureDTO cancelSignatureDTO = new CancelSignatureDTO(userId, dataDTO.getSubscriptionId());
+        CancelSignatureDTO cancelSignatureDTO = new CancelSignatureDTO(dto.orderId(), dto.userId(), dataDTO.getSubscriptionId());
         MessageQueueDTO<CancelSignatureDTO> messageQueueDTO = new MessageQueueDTO<CancelSignatureDTO>(true, cancelSignatureDTO);
 
         log.info("Sending message...");
