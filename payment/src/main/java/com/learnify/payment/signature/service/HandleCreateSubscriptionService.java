@@ -29,44 +29,13 @@ public class HandleCreateSubscriptionService {
             Subscription subscription = createSubscription(signatureDTO.data());
             publishSuccessMessage(signatureDTO.data(), subscription.getId());
         } catch (BadRequestException e) {
-            publishErrorMessage(e);
+            publishErrorMessage(signatureDTO.data().orderId(), e);
         }
     }
 
     private Subscription createSubscription(SignatureDTO signatureDTO) {
-        try {
-            log.info("Creating subscription in user {}. Prepare recurring data...", signatureDTO.customer().userId());
-            SubscriptionCreateParams.Item.PriceData.Recurring recurring = SubscriptionCreateParams.Item.PriceData.Recurring.builder()
-                    .setInterval(SubscriptionCreateParams.Item.PriceData.Recurring.Interval.MONTH)
-                    .build();
+        throw new BadRequestException("Não foi possível criar a inscrição do usuário para esse plano");
 
-            log.info("Prepare price data params...");
-            long valueInCents = signatureDTO.plan().value().multiply(BigDecimal.valueOf(100)).longValue();
-            SubscriptionCreateParams.Item.PriceData priceData = SubscriptionCreateParams.Item.PriceData.builder()
-                    .setCurrency("BRL")
-                    .setUnitAmount(valueInCents)
-                    .setProduct(signatureDTO.plan().stripeId())
-                    .setRecurring(recurring)
-                    .build();
-
-            log.info("Prepare item params...");
-            SubscriptionCreateParams.Item item = SubscriptionCreateParams.Item.builder()
-                    .setPriceData(priceData)
-                    .build();
-
-            log.info("Prepare subscription params...");
-            SubscriptionCreateParams subscriptionParams = SubscriptionCreateParams.builder()
-                    .setCustomer(signatureDTO.customer().customerId())
-                    .addItem(item)
-                    .build();
-
-            log.info("Creating subscription...");
-            Subscription subscription = Subscription.create(subscriptionParams);
-            log.info("Subscription created");
-            return subscription;
-        } catch (com.stripe.exception.StripeException e) {
-            throw new BadRequestException("Não foi possível criar a inscrição do usuário para esse plano");
-        }
     }
 
     private void publishSuccessMessage(SignatureDTO signatureDTO, String subscriptionId) {
@@ -80,9 +49,9 @@ public class HandleCreateSubscriptionService {
         publishMessageQueueService.run(returnPayment, messageQueueDTO);
     }
 
-    private void publishErrorMessage(BadRequestException error) {
+    private void publishErrorMessage(String orderId, BadRequestException error) {
         log.error("Publish error message...", error);
-        ReturnErrorDTO returnErrorDTO = new ReturnErrorDTO(error.getStatus(), error.getMessage());
+        ReturnErrorDTO returnErrorDTO = new ReturnErrorDTO(orderId, error.getStatus(), error.getMessage());
         MessageQueueDTO<ReturnErrorDTO> messageQueueDTO = new MessageQueueDTO<ReturnErrorDTO>(false, returnErrorDTO);
         publishMessageQueueService.run(returnPayment, messageQueueDTO);
     }
