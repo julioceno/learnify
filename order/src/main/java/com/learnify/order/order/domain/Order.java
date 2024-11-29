@@ -17,6 +17,7 @@ public class Order {
     private String id;
     private String planId;
     private String subscriptionId;
+    private String signatureId;
     private String messageError;
     private StatusOrder status;
 }

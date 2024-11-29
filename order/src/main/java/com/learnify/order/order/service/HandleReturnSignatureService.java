@@ -4,7 +4,9 @@ import com.learnify.order.common.dto.MessageQueueDTO;
 import com.learnify.order.common.service.DataDTO;
 import com.learnify.order.common.service.IdempotencyService;
 import com.learnify.order.common.service.PublishMessageQueueService;
+import com.learnify.order.order.domain.Order;
 import com.learnify.order.order.domain.OrderRepository;
+import com.learnify.order.order.domain.StatusOrder;
 import com.learnify.order.order.dto.CancelSignatureDTO;
 import com.learnify.order.order.dto.ReturnSignatureDTO;
 import lombok.extern.slf4j.Slf4j;
@@ -32,6 +34,7 @@ public class HandleReturnSignatureService {
         log.info("Received message for user {}", userId);
 
         if (dto.ok()) {
+            updateOrder(dto.data());
             removeIdempotenceKey(userId);
             return;
         }
@@ -39,6 +42,18 @@ public class HandleReturnSignatureService {
         log.info("Signature is fail, call payment ms for reset operation");
         DataDTO dataDTO = getData(dto.data().userId());
         publishMessageToCancelMessage(dto.data(), dataDTO);
+    }
+
+    private void updateOrder(ReturnSignatureDTO signatureDTO) {
+        log.info("Finding order with error status...");
+        Order order = orderRepository.findOneById(signatureDTO.orderId()).get();
+
+        log.info("Updating order...");
+        order.setStatus(StatusOrder.SUCCESSFULY);
+        order.setSignatureId(""); // TODO: retornar o valor correto
+
+        orderRepository.save(order);
+
     }
 
     private void removeIdempotenceKey(String userId) {
