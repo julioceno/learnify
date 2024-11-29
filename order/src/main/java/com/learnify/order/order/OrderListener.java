@@ -18,7 +18,7 @@ public class OrderListener {
     private final HandleReturnCancelSignatureService handleReturnCancelSignatureService;
 
     @SqsListener("${aws.services.queue.name.return-signature}")
-    public void returnSignature(MessageQueueDTO<ReturnSignatureDTO> dto) {
+    public void returnSignature(MessageQueueDTO<?> dto) {
         handleResultSignatureService.run(dto);
     }
 

@@ -1,6 +1,7 @@
 package com.learnify.plans.signatures.services;
 
 import com.learnify.plans.common.dto.MessageQueueDTO;
+import com.learnify.plans.common.dto.ReturnErrorDTO;
 import com.learnify.plans.common.exceptions.ConflictException;
 import com.learnify.plans.common.service.PublishMessageQueueService;
 import com.learnify.plans.plans.domain.Plan;
@@ -18,11 +19,12 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 
+// TODO: melhorar logs
 @Service
 @Slf4j
 public class HandleCreateSignatureService {
     @Value("${aws.services.queue.url.return-signature}")
-    private String returnSignature;
+    private String returnSignatureUrl;
 
     private final SignatureRepository signatureRepository;
     private final PlanRepository planRepository;
@@ -41,10 +43,19 @@ public class HandleCreateSignatureService {
             createSignature(signatureDTO, plan);
 
             log.info("Return success...");
-            sendMessage(true, signatureDTO.data());
-        } catch (RuntimeException e) {
+            ReturnSignature returnSignature = new ReturnSignature(signatureDTO.data().orderId(), signatureDTO.data().userId(), signatureDTO.data().planId());
+            MessageQueueDTO<ReturnSignature> message = new MessageQueueDTO<ReturnSignature>(true, returnSignature);
+            publishMessageQueueService.run(returnSignatureUrl, message);
+        } catch (ConflictException e) {
             log.error("Return error...", e);
-            sendMessage(false, signatureDTO.data());
+            ReturnErrorDTO returnErrorDTO = new ReturnErrorDTO(
+                    signatureDTO.data().orderId(),
+                    signatureDTO.data().userId(),
+                    e.getStatus(),
+                    e.getMessage()
+            );
+            MessageQueueDTO<ReturnErrorDTO> message = new MessageQueueDTO<ReturnErrorDTO>(false, returnErrorDTO);
+            publishMessageQueueService.run(returnSignatureUrl, message);
         } finally {
             log.info("Message sent");
         }
@@ -98,10 +109,5 @@ public class HandleCreateSignatureService {
 
         log.info("{} permissions generated", signaturesPermission.size());
         return signaturesPermission;
-    }
-
-    private void sendMessage(Boolean ok, SignatureDTO signatureDTO) {
-        MessageQueueDTO<ReturnSignature> message = new MessageQueueDTO<ReturnSignature>(ok, new ReturnSignature(signatureDTO.orderId(), signatureDTO.userId(), signatureDTO.planId()));
-        publishMessageQueueService.run(returnSignature, message);
     }
 }

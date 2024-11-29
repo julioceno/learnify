@@ -1,6 +1,8 @@
 package com.learnify.order.order.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.learnify.order.common.dto.MessageQueueDTO;
+import com.learnify.order.common.dto.ReturnErrorDTO;
 import com.learnify.order.common.service.DataDTO;
 import com.learnify.order.common.service.IdempotencyService;
 import com.learnify.order.common.service.PublishMessageQueueService;
@@ -22,29 +24,34 @@ public class HandleReturnSignatureService {
     private final PublishMessageQueueService publishMessageQueueService;
     private final IdempotencyService idempotencyService;
     private final OrderRepository orderRepository;
+    private final ObjectMapper objectMapper;
 
-    public HandleReturnSignatureService(PublishMessageQueueService publishMessageQueueService, IdempotencyService idempotencyService, OrderRepository orderRepository) {
+    public HandleReturnSignatureService(PublishMessageQueueService publishMessageQueueService, IdempotencyService idempotencyService, OrderRepository orderRepository, ObjectMapper objectMapper) {
         this.publishMessageQueueService = publishMessageQueueService;
         this.idempotencyService = idempotencyService;
         this.orderRepository = orderRepository;
+        this.objectMapper = objectMapper;
     }
 
-    public void run(MessageQueueDTO<ReturnSignatureDTO> dto) {
-        String userId = dto.data().userId();
-        log.info("Received message for user {}", userId);
-
+    public void run(MessageQueueDTO<?> dto) {
         if (dto.ok()) {
-            updateOrder(dto.data());
+            ReturnSignatureDTO returnSignatureDTO = objectMapper.convertValue(dto.data(), ReturnSignatureDTO.class);
+            String userId = returnSignatureDTO.userId();
+            log.info("Received message for user {}", userId);
+
+            updateOrderSuccessfully(returnSignatureDTO);
             removeIdempotenceKey(userId);
             return;
         }
 
         log.info("Signature is fail, call payment ms for reset operation");
-        DataDTO dataDTO = getData(dto.data().userId());
-        publishMessageToCancelMessage(dto.data(), dataDTO);
+        ReturnErrorDTO returnErrorDTO = objectMapper.convertValue(dto.data(), ReturnErrorDTO.class);
+        updateOrderError(returnErrorDTO);
+        DataDTO dataDTO = getData(returnErrorDTO.userId());
+        publishMessageToCancelMessage(returnErrorDTO, dataDTO);
     }
 
-    private void updateOrder(ReturnSignatureDTO signatureDTO) {
+    private void updateOrderSuccessfully(ReturnSignatureDTO signatureDTO) {
         log.info("Finding order with error status...");
         Order order = orderRepository.findOneById(signatureDTO.orderId()).get();
 
@@ -53,7 +60,19 @@ public class HandleReturnSignatureService {
         order.setSignatureId(""); // TODO: retornar o valor correto
 
         orderRepository.save(order);
+    }
 
+    private void updateOrderError(ReturnErrorDTO returnErrorDTO) {
+        log.info("Finding order with error status...");
+        Order order = orderRepository.findOneById(returnErrorDTO.orderId()).get();
+
+        log.info("Updating order...");
+        order.setMessageError("Ocorreu um erro ao tentar criar a assinatura");
+        order.setStatus(StatusOrder.ERROR);
+        order.setMessageError(returnErrorDTO.message());
+        orderRepository.save(order);
+
+        log.info("Order updated");
     }
 
     private void removeIdempotenceKey(String userId) {
@@ -71,7 +90,7 @@ public class HandleReturnSignatureService {
         return dataDTO;
     }
 
-    private void publishMessageToCancelMessage(ReturnSignatureDTO dto, DataDTO dataDTO) {
+    private void publishMessageToCancelMessage(ReturnErrorDTO dto, DataDTO dataDTO) {
         log.info("Creating dto to sending...");
         CancelSignatureDTO cancelSignatureDTO = new CancelSignatureDTO(dto.orderId(), dto.userId(), dataDTO.getSubscriptionId());
         MessageQueueDTO<CancelSignatureDTO> messageQueueDTO = new MessageQueueDTO<CancelSignatureDTO>(true, cancelSignatureDTO);
