@@ -1,4 +1,4 @@
-package com.learnify.payment.common.dto;
+package com.learnify.order.common.dto;
 
 import org.springframework.http.HttpStatus;
 

@@ -28,7 +28,7 @@ public class HandleCancelSignatureService {
             cancelSubscription(dto.data().subscriptionId());
             publishSuccessMessage(dto.data());
         } catch (BadRequestException e) {
-            publishErrorMessage(e);
+            publishErrorMessage(e, dto.data());
         }
     }
 
@@ -55,9 +55,9 @@ public class HandleCancelSignatureService {
         publishMessageQueueService.run(returnCancelSignature, messageQueueDTO);
     }
 
-    private void publishErrorMessage(BadRequestException error) {
+    private void publishErrorMessage(BadRequestException error, CancelSignatureDTO dto) {
         log.error("Publish error message...", error);
-        ReturnErrorDTO returnErrorDTO = new ReturnErrorDTO(error.getStatus(), error.getMessage());
+        ReturnErrorDTO returnErrorDTO = new ReturnErrorDTO(dto.orderId(), dto.userId(), error.getStatus(), error.getMessage());
         MessageQueueDTO<ReturnErrorDTO> messageQueueDTO = new MessageQueueDTO<ReturnErrorDTO>(false, returnErrorDTO);
         publishMessageQueueService.run(returnCancelSignature, messageQueueDTO);
     }

@@ -23,7 +23,7 @@ public class OrderListener {
     }
 
     @SqsListener("${aws.services.queue.name.return-payment}")
-    public void returnPayment(MessageQueueDTO<ReturnPaymentDTO> messageQueueDTO) {
+    public void returnPayment(MessageQueueDTO<?> messageQueueDTO) {
         handleReturnPaymentService.run(messageQueueDTO);
     }
 

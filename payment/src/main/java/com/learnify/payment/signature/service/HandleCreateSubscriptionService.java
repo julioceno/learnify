@@ -29,7 +29,7 @@ public class HandleCreateSubscriptionService {
             Subscription subscription = createSubscription(signatureDTO.data());
             publishSuccessMessage(signatureDTO.data(), subscription.getId());
         } catch (BadRequestException e) {
-            publishErrorMessage(e);
+            publishErrorMessage(e, signatureDTO.data());
         }
     }
 
@@ -49,9 +49,15 @@ public class HandleCreateSubscriptionService {
         publishMessageQueueService.run(returnPayment, messageQueueDTO);
     }
 
-    private void publishErrorMessage(BadRequestException error) {
+    private void publishErrorMessage(BadRequestException error, SignatureDTO dto) {
         log.error("Publish error message...", error);
-        ReturnErrorDTO returnErrorDTO = new ReturnErrorDTO(error.getStatus(), error.getMessage());
+        ReturnErrorDTO returnErrorDTO = new ReturnErrorDTO(
+                dto.orderId(),
+                dto.customer().userId(),
+                error.getStatus(),
+                error.getMessage()
+        );
+
         MessageQueueDTO<ReturnErrorDTO> messageQueueDTO = new MessageQueueDTO<ReturnErrorDTO>(false, returnErrorDTO);
         publishMessageQueueService.run(returnPayment, messageQueueDTO);
     }
