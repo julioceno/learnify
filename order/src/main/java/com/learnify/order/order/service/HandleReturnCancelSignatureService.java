@@ -2,29 +2,42 @@ package com.learnify.order.order.service;
 
 import com.learnify.order.common.dto.MessageQueueDTO;
 import com.learnify.order.common.service.IdempotencyService;
-import com.learnify.order.common.service.PublishMessageQueueService;
+import com.learnify.order.order.domain.Order;
+import com.learnify.order.order.domain.OrderRepository;
+import com.learnify.order.order.domain.StatusOrder;
 import com.learnify.order.order.dto.ReturnPaymentDTO;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
 public class HandleReturnCancelSignatureService {
-    private final PublishMessageQueueService publishMessageQueueService;
     private final IdempotencyService idempotencyService;
+    private final OrderRepository orderRepository;
 
-    public HandleReturnCancelSignatureService(PublishMessageQueueService publishMessageQueueService, IdempotencyService idempotencyService) {
-        this.publishMessageQueueService = publishMessageQueueService;
+    public HandleReturnCancelSignatureService(IdempotencyService idempotencyService, OrderRepository orderRepository) {
         this.idempotencyService = idempotencyService;
+        this.orderRepository = orderRepository;
     }
 
     public void run(MessageQueueDTO<ReturnPaymentDTO> messageQueueDTO) {
         log.info("Received message for user {}", messageQueueDTO.data().userId());
-        // TODO: adicionar no banco uma mensagem que o cancelamento da assinatura foi mal sucedido e fara mais tentativas
-        // TODO: fazer com que a fila tenha um maximo de tentativas
+        updateOrderError(messageQueueDTO.data().orderId());
 
-        // TODO: fazer alguma tratativa para mostrar que o pagamento não deu certo
+        log.info("revoking idempotency...");
         idempotencyService.remove(messageQueueDTO.data().userId());
+        log.info("Revoked");
+    }
+
+    private void updateOrderError(String orderId) {
+        log.info("Finding order with error status...");
+        Order order = orderRepository.findOneById(orderId).get();
+
+        log.info("Updating order...");
+        order.setMessageError("Ocorreu um erro ao tentar criar a assinatura, foi feito o cancelamento da assinatura");
+        order.setStatus(StatusOrder.ERROR);
+        orderRepository.save(order);
+
+        log.info("Updated order");
     }
 }

@@ -92,7 +92,6 @@ public class HandleReturnPaymentService {
 
         log.info("Updated order, revoke idempotency...");
         idempotencyService.remove(dto.userId());
-
     }
 
     private void publishMessageSignature(ReturnPaymentDTO dto, DataDTO dataDTO) {
