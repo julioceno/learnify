@@ -4,10 +4,8 @@ import com.learnify.plans.plans.domain.Plan;
 import com.learnify.plans.plans.domain.PlanRepository;
 import com.learnify.plans.common.FilterSpecification;
 import com.learnify.plans.plans.dto.PlanDTO;
-import com.learnify.plans.plans.dto.ResponseListDTO;
+import com.learnify.plans.common.dto.ResponseListDTO;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -30,7 +28,6 @@ public class GetPlansService {
                 .and(FilterSpecification.contains("description", description));
 
         Page<PlanDTO> plans = getPlans(filters, pageable);
-
         ResponseListDTO<PlanDTO> responseListDTO = new ResponseListDTO<PlanDTO>(
                 plans.getTotalElements(),
                 plans.getTotalPages(),
@@ -46,7 +43,7 @@ public class GetPlansService {
         log.info("Finding plans...");
         Page<PlanDTO> plans = planRepository.findAll(filters, pageable)
                 .map(PlanDTO::new);
-        log.info(format("%s plans found", plans.getTotalElements()));
+        log.info("{} plans found", plans.getTotalElements());
         return plans;
     }
 }

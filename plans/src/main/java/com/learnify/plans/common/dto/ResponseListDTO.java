@@ -1,4 +1,4 @@
-package com.learnify.plans.plans.dto;
+package com.learnify.plans.common.dto;
 
 import lombok.*;
 

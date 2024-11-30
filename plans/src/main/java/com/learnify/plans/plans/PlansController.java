@@ -1,7 +1,7 @@
 package com.learnify.plans.plans;
 
 import com.learnify.plans.plans.dto.PlanDTO;
-import com.learnify.plans.plans.dto.ResponseListDTO;
+import com.learnify.plans.common.dto.ResponseListDTO;
 import com.learnify.plans.plans.service.PlansService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

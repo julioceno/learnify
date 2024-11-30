@@ -15,6 +15,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class Order {
     @Id
     private String id;
+    private String userId;
     private String planId;
     private String subscriptionId;
     private String signatureId;

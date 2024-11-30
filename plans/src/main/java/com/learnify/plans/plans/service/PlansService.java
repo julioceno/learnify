@@ -1,7 +1,7 @@
 package com.learnify.plans.plans.service;
 
 import com.learnify.plans.plans.dto.PlanDTO;
-import com.learnify.plans.plans.dto.ResponseListDTO;
+import com.learnify.plans.common.dto.ResponseListDTO;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 

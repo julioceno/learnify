@@ -43,7 +43,7 @@ public class CreateOrderService {
 
         try {
             com.learnify.order.order.dto.plan.PlanDTO planDTO = getPlanService.run(createOrderDTO.planId());
-            Order order = createOrder(planDTO.getId());
+            Order order = createOrder(planDTO.getId(), user.getId());
 
             SignatureDTO signatureDTO = createSignatureDTO(order.getId(), user, planDTO);
             MessageQueueDTO<SignatureDTO> messageQueueDTO = new MessageQueueDTO<SignatureDTO>(true, signatureDTO);
@@ -84,11 +84,12 @@ public class CreateOrderService {
         return signatureDTO;
     }
 
-    private Order createOrder(String planId) {
+    private Order createOrder(String planId, String userId) {
         log.info("Creating order in database...");
         Order order = new Order();
         order.setStatus(StatusOrder.PROCESSING);
         order.setPlanId(planId);
+        order.setUserId(userId);
 
         Order orderCreated = orderRepository.insert(order);
         log.info("Order created");
