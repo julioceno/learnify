@@ -3,7 +3,7 @@ package com.learnify.order.order.service;
 import com.learnify.order.common.dto.MessageQueueDTO;
 import com.learnify.order.common.dto.UserDTO;
 import com.learnify.order.common.exception.BadRequestException;
-import com.learnify.order.common.service.DataDTO;
+import com.learnify.order.common.dto.IdempotencyDataDTO;
 import com.learnify.order.common.service.IdempotencyService;
 import com.learnify.order.common.service.PublishMessageQueueService;
 import com.learnify.order.order.domain.Order;
@@ -40,25 +40,23 @@ public class CreateOrderService {
 
     public void run(UserDTO user, CreateOrderDTO createOrderDTO) {
         createIdempotencyId(user.getId(), createOrderDTO);
-
+        com.learnify.order.order.dto.plan.PlanDTO planDTO = getPlanService.run(createOrderDTO.planId());
+        Order order = createOrder(planDTO.getId(), user.getId());
         try {
-            com.learnify.order.order.dto.plan.PlanDTO planDTO = getPlanService.run(createOrderDTO.planId());
-            Order order = createOrder(planDTO.getId(), user.getId());
-
             SignatureDTO signatureDTO = createSignatureDTO(order.getId(), user, planDTO);
             MessageQueueDTO<SignatureDTO> messageQueueDTO = new MessageQueueDTO<SignatureDTO>(true, signatureDTO);
 
             publishMessageQueueService.run(paymentUrl, messageQueueDTO);
         } catch (RuntimeException e) {
+            updateOrderError(order.getId());
             revokeIdempotencyId(user.getId());
-            // TODO: salvar mensagem de erro
             throw e;
         }
     }
 
     private void createIdempotencyId(String key, CreateOrderDTO createOrderDTO) {
         log.info("Generate idempotency id...");
-        final DataDTO dataDTO = new DataDTO(createOrderDTO.planId(), null);
+        final IdempotencyDataDTO dataDTO = new IdempotencyDataDTO(createOrderDTO.planId(), null);
         boolean isSuccess = idempotencyService.create(key, dataDTO, idempotencyTime);
 
         if (!isSuccess) {
@@ -96,7 +94,19 @@ public class CreateOrderService {
         return orderCreated;
     }
 
-    // TODO: testar esse fluxo
+
+    private void updateOrderError(String orderId) {
+        log.info("Finding order with error status...");
+        Order order = orderRepository.findOneById(orderId).get();
+
+        log.info("Updating order...");
+        order.setMessageError("Ocorreu um erro ao tentar criar a assinatura");
+        order.setStatus(StatusOrder.ERROR);
+        orderRepository.save(order);
+
+        log.info("Order updated");
+    }
+
     private void revokeIdempotencyId(String key) {
         log.info("Deleting idempotency id...");
         idempotencyService.remove(key);

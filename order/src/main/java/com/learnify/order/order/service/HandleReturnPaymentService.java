@@ -3,7 +3,7 @@ package com.learnify.order.order.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.learnify.order.common.dto.MessageQueueDTO;
 import com.learnify.order.common.dto.ReturnErrorDTO;
-import com.learnify.order.common.service.DataDTO;
+import com.learnify.order.common.dto.IdempotencyDataDTO;
 import com.learnify.order.common.service.IdempotencyService;
 import com.learnify.order.common.service.PublishMessageQueueService;
 import com.learnify.order.order.domain.Order;
@@ -15,7 +15,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-// TODO: revisar logs
 @Service
 @Slf4j
 public class HandleReturnPaymentService {
@@ -38,7 +37,6 @@ public class HandleReturnPaymentService {
     }
 
     public void run(MessageQueueDTO<?> dto) {
-
         if (dto.ok()) {
             ReturnPaymentDTO returnPaymentDTO = objectMapper.convertValue(dto.data(), ReturnPaymentDTO.class);
             createPayment(returnPaymentDTO);
@@ -53,14 +51,22 @@ public class HandleReturnPaymentService {
         String userId = dto.userId();
         log.info("Received message for user {}", userId);
 
-        DataDTO dataDTO = updateIdempotency(dto);
+        IdempotencyDataDTO dataDTO = updateIdempotency(dto);
         updateOrderSuccessfully(dto);
         publishMessageSignature(dto, dataDTO);
     }
 
-    private DataDTO updateIdempotency(ReturnPaymentDTO dto) {
+    private void publishMessageSignature(ReturnPaymentDTO dto, IdempotencyDataDTO dataDTO) {
+        log.info("Payment is successfully, call signature service");
+        CreateSubscriptionDTO createSubscriptionDTO = new CreateSubscriptionDTO(dto.orderId(), dto.userId(), dataDTO.getPlanId());
+        MessageQueueDTO<CreateSubscriptionDTO> messageQueueDTO = new MessageQueueDTO<CreateSubscriptionDTO>(true, createSubscriptionDTO);
+
+        publishMessageQueueService.run(signatureUrl, messageQueueDTO);
+    }
+
+    private IdempotencyDataDTO updateIdempotency(ReturnPaymentDTO dto) {
         log.info("Getting idempotence value by key {}...", dto.userId());
-        DataDTO dataDTO = idempotencyService.get(dto.userId());
+        IdempotencyDataDTO dataDTO = idempotencyService.get(dto.userId());
 
         log.info("Value obtained, set subscriptionId into data to update...");
         dataDTO.setSubscriptionId(dto.subscriptionId());
@@ -94,11 +100,4 @@ public class HandleReturnPaymentService {
         idempotencyService.remove(dto.userId());
     }
 
-    private void publishMessageSignature(ReturnPaymentDTO dto, DataDTO dataDTO) {
-        log.info("Payment is successfully, call signature service");
-        CreateSubscriptionDTO createSubscriptionDTO = new CreateSubscriptionDTO(dto.orderId(), dto.userId(), dataDTO.getPlanId());
-        MessageQueueDTO<CreateSubscriptionDTO> messageQueueDTO = new MessageQueueDTO<CreateSubscriptionDTO>(true, createSubscriptionDTO);
-
-        publishMessageQueueService.run(signatureUrl, messageQueueDTO);
-    }
 }

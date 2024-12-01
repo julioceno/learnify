@@ -2,6 +2,7 @@ package com.learnify.order.common.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.learnify.order.common.dto.IdempotencyDataDTO;
 import com.learnify.order.common.exception.BadRequestException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -10,7 +11,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.concurrent.TimeUnit;
 
-// TODO: adicionar logs
 @Service
 @AllArgsConstructor
 @Slf4j
@@ -18,7 +18,7 @@ public class IdempotencyService {
     private final StringRedisTemplate redisTemplate;
     private final ObjectMapper objectMapper;
 
-    public boolean create(String idempotencyKey, DataDTO data, long ttl) {
+    public boolean create(String idempotencyKey, IdempotencyDataDTO data, long ttl) {
         try {
             String dataSerialized = objectMapper.writeValueAsString(data);
             Boolean success = redisTemplate
@@ -31,7 +31,7 @@ public class IdempotencyService {
         }
     }
 
-    public boolean update(String idempotencyKey, DataDTO newData, long ttl) {
+    public boolean update(String idempotencyKey, IdempotencyDataDTO newData, long ttl) {
         try {
             if (Boolean.TRUE.equals(redisTemplate.hasKey(idempotencyKey))) {
                 String dataSerialized = objectMapper.writeValueAsString(newData);
@@ -46,11 +46,11 @@ public class IdempotencyService {
         }
     }
 
-    public DataDTO get(String idempotencyKey) {
+    public IdempotencyDataDTO get(String idempotencyKey) {
         try {
             if (Boolean.TRUE.equals(redisTemplate.hasKey(idempotencyKey))) {
                 String data = redisTemplate.opsForValue().get(idempotencyKey);
-                DataDTO dataDTO = objectMapper.readValue(data, DataDTO.class);
+                IdempotencyDataDTO dataDTO = objectMapper.readValue(data, IdempotencyDataDTO.class);
                 return dataDTO;
             }
 

@@ -19,7 +19,6 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 
-// TODO: melhorar logs
 @Service
 @Slf4j
 public class HandleCreateSignatureService {
@@ -40,10 +39,10 @@ public class HandleCreateSignatureService {
         try {
             validateIfExists(signatureDTO.data().userId());
             Plan plan = getPlan(signatureDTO.data().planId());
-            createSignature(signatureDTO, plan);
+            Signature signature = createSignature(signatureDTO, plan);
 
             log.info("Return success...");
-            ReturnSignature returnSignature = new ReturnSignature(signatureDTO.data().orderId(), signatureDTO.data().userId(), signatureDTO.data().planId());
+            ReturnSignature returnSignature = new ReturnSignature(signatureDTO.data().orderId(), signatureDTO.data().userId(), signature.getId());
             MessageQueueDTO<ReturnSignature> message = new MessageQueueDTO<ReturnSignature>(true, returnSignature);
             publishMessageQueueService.run(returnSignatureUrl, message);
         } catch (ConflictException e) {
@@ -56,8 +55,6 @@ public class HandleCreateSignatureService {
             );
             MessageQueueDTO<ReturnErrorDTO> message = new MessageQueueDTO<ReturnErrorDTO>(false, returnErrorDTO);
             publishMessageQueueService.run(returnSignatureUrl, message);
-        } finally {
-            log.info("Message sent");
         }
     }
 
@@ -83,7 +80,7 @@ public class HandleCreateSignatureService {
         return plan;
     }
 
-    private void createSignature(MessageQueueDTO<SignatureDTO> signatureDTO, Plan plan) {
+    private Signature createSignature(MessageQueueDTO<SignatureDTO> signatureDTO, Plan plan) {
         log.info("Creating signature...");
         Signature signatureToCreate = new Signature();
         BeanUtils.copyProperties(signatureDTO.data(), signatureToCreate);
@@ -91,8 +88,10 @@ public class HandleCreateSignatureService {
         List<SignaturePermission> signaturePermissions = generatePermissions(signatureToCreate, plan);
         signatureToCreate.setSignaturePermissions(signaturePermissions);
 
-        signatureRepository.save((signatureToCreate));
+        Signature signature = signatureRepository.save((signatureToCreate));
         log.info("Signature created");
+
+        return signature;
     }
 
     private List<SignaturePermission> generatePermissions(Signature signature, Plan plan) {
