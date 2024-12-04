@@ -13,11 +13,11 @@ O projeto é uma API construída usando **Java, Java Spring, AWS Simple Queue Se
 
 O **Learnify** tem a ideia de ser uma plataforma de estudos online. Mas no caso da aplicação, foi feito apenas a parte de assinatura dos planos disponiveis
 
-## Table of Contents
+## Índice
 
-- [Pré Requisitos](#pre-requisitos)
-- [Instalação](#instalacao)
-- [Configuração](#configuracao)
+- [Pré Requisitos](#pré-requisitos)
+- [Instalação](#instalação)
+- [Configuração](#configuração)
 - [Uso](#uso)
 - [API Endpoints](#api-endpoints)
 - [Licença](#licença)
