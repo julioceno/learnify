@@ -37,7 +37,7 @@ public class HandleCancelSignatureService {
             log.info("Getting subscription with id {}...", subscriptionId);
             Subscription resource = Subscription.retrieve(subscriptionId);
 
-            log.info("Subscription obtained, cancel subscription...");
+            log.info("Subscription obtained, cancel subs*cription...");
             SubscriptionCancelParams params = SubscriptionCancelParams.builder().build();
             resource.cancel(params);
 
