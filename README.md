@@ -56,6 +56,13 @@ docker compose up -d
 ./localstack.sh
 ```
 
+3. Configure a variavel stripe.api-key nos serviços: plans, payment e sso
+
+```yml
+    stripe:
+        api-key:
+```
+
 ## Uso
 
 1. Inicie todas as aplicações

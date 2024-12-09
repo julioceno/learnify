@@ -18,7 +18,7 @@ aws:
         cancel-signature: cancel-signature
 
 stripe:
-  api-key: sk_test_51QLWRPBOD9n8dy044RM36aMjnMNXFsEwk7qgMwA9DEh2obcAOL3DR66QUumvnyPHeikvScA0nMYIl1atHFmI7xam00lUjnw1US
+  api-key: 
 
 server:
   port: 8084
